@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-green-500 dark:bg-green-600 transition-colors duration-200">
+    <main className="min-h-screen bg-green-600 dark:bg-green-700 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
@@ -61,7 +61,7 @@ export default function Home() {
             </div>
 
             <div className="p-6 bg-white/10 backdrop-blur-sm rounded-lg shadow-lg border border-white/20">
-              <h2 className="text-2xl font-semibold mb-3 text-white">
+              <h2 className="text-2xl font-semibent mb-3 text-white">
                 Tailwind CSS
               </h2>
               <p className="text-white/80">
