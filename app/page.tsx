@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-green-600 dark:bg-green-800 transition-colors duration-200">
+    <main className="min-h-screen bg-emerald-500 dark:bg-emerald-700 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
