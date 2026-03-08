@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next.js App with Dark Mode",
+  title: "Next.js with Dark Mode",
   description: "A Next.js application with dark/light mode toggle",
 };
 
