@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-green-500 dark:bg-green-800 transition-colors duration-200">
+    <main className="min-h-screen bg-background dark:bg-green-800 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
@@ -43,7 +43,7 @@ export default function Home() {
         </div>
 
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6 text-white dark:text-white">
+          <h1 className="text-5xl font-bold mb-6 text-foreground">
             Welcome to Next.js
           </h1>
           <p className="text-xl mb-8 text-green-100 dark:text-green-200">
