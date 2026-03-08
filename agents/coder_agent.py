@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 from git import Repo
 from github import Github, GithubException
+import sys
 
 # ===============================
 # 1️⃣ Load environment variables
@@ -27,6 +28,12 @@ repo_gh = gh.get_repo(GITHUB_REPO)
 # Local repo
 PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 repo_local = Repo(PROJECT_PATH)
+
+# Use command-line argument as task prompt if provided
+if len(sys.argv) > 1:
+    task_description = sys.argv[1]
+else:
+    task_description = "Add dark/light mode toggle"  # default
 
 # ===============================
 # 2️⃣ Branch handling

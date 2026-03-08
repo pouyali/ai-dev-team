@@ -15,18 +15,18 @@ export default function Home() {
   }, []);
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('darkMode', newMode.toString());
+    if (newMode) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
     }
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
@@ -47,29 +47,29 @@ export default function Home() {
             Welcome to Next.js
           </h1>
           <p className="text-xl mb-8 text-gray-600 dark:text-gray-300">
-            A modern Next.js application with Tailwind CSS and dark mode support
+            A modern web application with dark mode support
           </p>
 
           <div className="grid md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
               <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
                 Fast Refresh
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Enjoy instant feedback on edits with Fast Refresh
+                Experience instant feedback with Next.js Fast Refresh
               </p>
             </div>
 
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
               <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
                 Tailwind CSS
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                Utility-first CSS framework for rapid UI development
+                Rapidly build modern websites with utility-first CSS
               </p>
             </div>
 
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
               <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
                 Dark Mode
               </h2>
