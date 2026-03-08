@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Moon, Sun } from 'lucide-react';
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
@@ -15,10 +14,10 @@ export default function Home() {
   }, []);
 
   const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
-    if (newMode) {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    if (newDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -26,7 +25,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
@@ -35,46 +34,70 @@ export default function Home() {
             aria-label="Toggle dark mode"
           >
             {darkMode ? (
-              <Sun className="w-6 h-6 text-yellow-500" />
+              <svg
+                className="w-6 h-6 text-yellow-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
             ) : (
-              <Moon className="w-6 h-6 text-gray-700" />
+              <svg
+                className="w-6 h-6 text-gray-700"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                />
+              </svg>
             )}
           </button>
         </div>
 
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+        <div className="text-center">
+          <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white transition-colors duration-200">
             Welcome to Next.js
           </h1>
-          <p className="text-xl mb-8 text-gray-600 dark:text-gray-300">
-            A modern web application with dark mode support
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 transition-colors duration-200">
+            A Next.js project with Tailwind CSS and dark mode support
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
+              <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">
                 Fast Refresh
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Experience instant feedback with Next.js Fast Refresh
+              <p className="text-gray-600 dark:text-gray-300">
+                Instant feedback on edits made to your React components
               </p>
             </div>
 
-            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
+              <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">
                 Tailwind CSS
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Rapidly build modern websites with utility-first CSS
+              <p className="text-gray-600 dark:text-gray-300">
+                Utility-first CSS framework for rapid UI development
               </p>
             </div>
 
-            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-200">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+            <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 transition-colors duration-200">
+              <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">
                 Dark Mode
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Toggle between light and dark themes seamlessly
+              <p className="text-gray-600 dark:text-gray-300">
+                Toggle between light and dark themes with ease
               </p>
             </div>
           </div>

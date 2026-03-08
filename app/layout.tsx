@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next.js Dark/Light Mode",
-  description: "A Next.js app with dark/light mode toggle",
+  title: "Next.js App with Dark Mode",
+  description: "A Next.js application with dark/light mode toggle",
 };
 
 export default function RootLayout({
