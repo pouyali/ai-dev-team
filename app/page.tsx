@@ -31,7 +31,7 @@ export default function Home() {
         <div className="flex justify-end mb-8">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-lg bg-white/20 hover:bg-white/30 transition-colors duration-200"
+            className="p-3 rounded-lg bg-black/20 hover:bg-black/30 transition-colors duration-200"
             aria-label="Toggle dark mode"
           >
             {darkMode ? (
@@ -51,7 +51,7 @@ export default function Home() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 bg-white/10 backdrop-blur-sm rounded-lg shadow-lg">
+            <div className="p-6 bg-black/10 backdrop-blur-sm rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Fast Refresh
               </h2>
@@ -60,7 +60,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 bg-white/10 backdrop-blur-sm rounded-lg shadow-lg">
+            <div className="p-6 bg-black/10 backdrop-blur-sm rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Tailwind CSS
               </h2>
@@ -69,7 +69,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 bg-white/10 backdrop-blur-sm rounded-lg shadow-lg">
+            <div className="p-6 bg-black/10 backdrop-blur-sm rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Dark Mode
               </h2>
