@@ -12,6 +12,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "flat-green": {
+          light: "#22c55e",
+          dark: "#16a34a",
+        },
       },
     },
   },
