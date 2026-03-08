@@ -20,7 +20,7 @@ export default function ThemeToggle(): JSX.Element {
 
   if (!mounted) {
     return (
-      <div className="p-3 rounded-lg bg-red-600 dark:bg-red-800">
+      <div className="p-3 rounded-lg bg-green-600 dark:bg-green-800">
         <div className="w-6 h-6" />
       </div>
     );
@@ -33,7 +33,7 @@ export default function ThemeToggle(): JSX.Element {
   return (
     <button
       onClick={toggleTheme}
-      className="p-3 rounded-lg bg-red-600 dark:bg-red-800 hover:bg-red-500 dark:hover:bg-red-700 transition-colors duration-200"
+      className="p-3 rounded-lg bg-green-600 dark:bg-green-800 hover:bg-green-500 dark:hover:bg-green-700 transition-colors duration-200"
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? (
