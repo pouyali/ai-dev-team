@@ -1,164 +1,141 @@
-# agents/coder_agent.py
-
 import os
+import sys
 import json
-import datetime
+import subprocess
 import re
+from datetime import datetime
 from dotenv import load_dotenv
 from anthropic import Anthropic
+from github import Github
 from git import Repo
-from github import Github, GithubException
 
 # ===============================
 # 1️⃣ Load environment variables
 # ===============================
 load_dotenv()
 
-# Claude API client
+# Claude API
 API_KEY = os.getenv("ANTHROPIC_API_KEY")
 client = Anthropic(api_key=API_KEY)
 
-# GitHub API client
+# GitHub API
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = "pouyali/ai-dev-team"
+GITHUB_REPO = "pouyali/ai-dev-team"  # replace if needed
 gh = Github(GITHUB_TOKEN)
 repo_gh = gh.get_repo(GITHUB_REPO)
 
 # Local repo
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-repo_local = Repo(PROJECT_PATH)
+local_repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+repo = Repo(local_repo_path)
 
 # ===============================
-# 2️⃣ Branch handling
+# 2️⃣ Utilities
 # ===============================
-def create_feature_branch(task_name: str) -> str:
-    sanitized_task = task_name.lower().replace(" ", "-").replace("/", "-")
-    timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    branch_name = f"feature/{sanitized_task}-{timestamp}"
-    repo_local.git.checkout("HEAD", b=branch_name)
-    print(f"Created and switched to branch: {branch_name}")
-    return branch_name
+def create_branch_name(prompt: str) -> str:
+    """Generate a descriptive branch name from prompt"""
+    name = prompt.lower()
+    name = re.sub(r'[^a-z0-9]+', '-', name)
+    name = name.strip('-')
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    return f"feature/{name}-{timestamp}"
 
-# ===============================
-# 3️⃣ Clean Markdown/extra text (regex-based)
-# ===============================
-def clean_code(raw_code: str) -> str:
-    """
-    Remove any leading/trailing Markdown fences or extra explanation lines,
-    including fences attached to code lines.
-    """
-    code = raw_code.strip()
-
-    # Remove leading ``` optionally with language
-    code = re.sub(r'^```[\w-]*\s*', '', code, flags=re.MULTILINE)
-
-    # Remove trailing ```
-    code = re.sub(r'\s*```$', '', code, flags=re.MULTILINE)
-
-    # Remove prepended explanation lines
-    lines = code.split("\n")
-    while lines and lines[0].lower().startswith(("here's", "here is", "the content")):
-        lines.pop(0)
-    code = "\n".join(lines)
-
-    return code.strip()
+def run_git_command(cmd: list):
+    subprocess.run(cmd, cwd=local_repo_path, check=True)
 
 # ===============================
-# 4️⃣ Generate single file via Claude
+# 3️⃣ Determine task
 # ===============================
-def generate_file(file_path: str, task_description: str) -> str:
-    prompt = f"""
-Generate **only the content** for the file "{file_path}" for this task:
-"{task_description}".
+task_prompt = os.environ.get("TASK_PROMPT") or (sys.argv[1] if len(sys.argv) > 1 else "")
+reviewer_comments = os.environ.get("REVIEWER_COMMENTS", "")
 
-- Return raw code only, no Markdown fences or explanations.
-- Escape newlines and quotes properly.
-- The content should be ready to write to disk.
-"""
-    response = client.messages.create(
-        model="claude-sonnet-4-5-20250929",
-        system="You are an expert Next.js full-stack developer.",
-        max_tokens=2000,
-        messages=[{"role": "user", "content": prompt}]
+branch_name = create_branch_name(task_prompt)
+
+print(f"➡ Task: {task_prompt}")
+print(f"➡ Branch: {branch_name}")
+
+# ===============================
+# 4️⃣ Create new branch
+# ===============================
+repo.git.checkout("main")
+repo.git.pull()
+repo.git.checkout("-b", branch_name)
+print(f"Created and switched to branch {branch_name}")
+
+# ===============================
+# 5️⃣ Ask Claude to generate/update code
+# ===============================
+def generate_code(prompt, reviewer_feedback=""):
+    """Ask Claude to create/update code for this task"""
+    system_msg = (
+        "You are an expert software engineer and code generator. "
+        "Only generate minimal files necessary. "
+        "Do not touch unrelated files. "
+        "If reviewer comments exist, incorporate them into your changes."
     )
 
-    code = response.content[0].text.strip()
-    code_clean = clean_code(code)
-    print(f"Generated code for {file_path} (length {len(code_clean)})")
-    return code_clean
+    user_msg = f"""
+Task: {prompt}
+Reviewer Feedback: {reviewer_feedback}
+Instructions:
+- If this is a new project, generate all files needed for a Next.js + Tailwind + dark/light mode app.
+- If this is a small feature/update, only update relevant files.
+- Return a JSON object with file paths as keys and file contents as values, no markdown or ``` code blocks.
+"""
 
-# ===============================
-# 5️⃣ Apply code to disk
-# ===============================
-def apply_code(file_path: str, code: str):
-    full_path = os.path.join(PROJECT_PATH, file_path)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    response = client.messages.create(
+        model="claude-sonnet-4-5-20250929",
+        system=system_msg,
+        messages=[{"role": "user", "content": user_msg}],
+        max_tokens=4000
+    )
 
-    with open(full_path, "w") as f:
-        f.write(code)
-    print(f"Code written to {full_path}")
-
-# ===============================
-# 6️⃣ Commit & push
-# ===============================
-def commit_and_push(branch_name: str, commit_message: str):
-    repo_local.git.add(A=True)
-    repo_local.index.commit(commit_message)
-    origin = repo_local.remote(name="origin")
-    origin.push(branch_name)
-    print(f"Branch '{branch_name}' committed and pushed to GitHub")
-
-# ===============================
-# 7️⃣ Create PR
-# ===============================
-def create_pull_request(branch_name: str, title: str, body: str = ""):
+    # Clean and parse JSON
+    content = response.content[0].text.strip()
     try:
-        pr = repo_gh.create_pull(
-            title=title,
-            body=body,
-            head=branch_name,
-            base="main"
-        )
-        print(f"Pull request created: {pr.html_url}")
-        return pr
-    except GithubException as e:
-        print("Failed to create PR:", e)
-        return None
+        return json.loads(content)
+    except json.JSONDecodeError:
+        # fallback: try removing ``` if present
+        content_clean = re.sub(r"```[a-z]*\n?|```", "", content)
+        return json.loads(content_clean)
 
 # ===============================
-# 8️⃣ Full workflow
+# 6️⃣ Generate/update project files
 # ===============================
-def run_task(task_description: str, commit_message: str):
-    # 1️⃣ Create branch
-    branch_name = create_feature_branch(task_description)
+project_files = generate_code(task_prompt, reviewer_comments)
 
-    # 2️⃣ List of files to generate
-    files_to_generate = [
-        "app/layout.tsx",
-        "app/providers/theme-provider.tsx",
-        "app/globals.css",
-        "app/page.tsx",
-        "app/components/theme-toggle.tsx",
-        "tailwind.config.ts",
-        "postcss.config.js",
-        "next.config.js",
-    ]
-
-    # 3️⃣ Generate and write each file
-    for file_path in files_to_generate:
-        code = generate_file(file_path, task_description)
-        apply_code(file_path, code)
-
-    # 4️⃣ Commit & push
-    commit_and_push(branch_name, commit_message)
-
-    # 5️⃣ Create PR
-    create_pull_request(branch_name, title=commit_message, body=f"AI-generated code for: {task_description}")
+for path, code in project_files.items():
+    full_path = os.path.join(local_repo_path, path)
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    with open(full_path, "w", encoding="utf-8") as f:
+        f.write(code)
+    print(f"✅ Updated: {path}")
 
 # ===============================
-# 9️⃣ Run example
+# 7️⃣ Commit & push
 # ===============================
-if __name__ == "__main__":
-    task = "Create a new Next.js project with Tailwind and dark/light mode toggle"
-    commit_msg = f"AI: {task}"
-    run_task(task, commit_msg)
+commit_message = f"{task_prompt}"
+repo.git.add(all=True)
+repo.index.commit(commit_message)
+repo.git.push("--set-upstream", "origin", branch_name)
+print(f"🚀 Branch pushed: {branch_name}")
+
+# ===============================
+# 8️⃣ Create PR
+# ===============================
+open_prs = repo_gh.get_pulls(state="open")
+existing_pr = None
+for pr in open_prs:
+    if pr.head.ref == branch_name:
+        existing_pr = pr
+        break
+
+if existing_pr:
+    print(f"PR already exists: {existing_pr.html_url}")
+else:
+    pr = repo_gh.create_pull(
+        title=task_prompt,
+        body=f"Automated PR for task: {task_prompt}",
+        head=branch_name,
+        base="main"
+    )
+    print(f"PR created: {pr.html_url}")
