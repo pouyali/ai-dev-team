@@ -1,37 +1,38 @@
 'use client';
 
+import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
-export default function ThemeToggle() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+export function ThemeToggle() {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-    
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    setMounted(true);
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
+  if (!mounted) {
+    return (
+      <button
+        className="rounded-lg p-2 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+        aria-label="Toggle theme"
+      >
+        <div className="w-5 h-5" />
+      </button>
+    );
+  }
 
   return (
     <button
-      onClick={toggleTheme}
-      className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="rounded-lg p-2 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
       aria-label="Toggle theme"
     >
-      {theme === 'light' ? (
-        <Moon className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+      {theme === 'dark' ? (
+        <Sun className="w-5 h-5 text-yellow-500" />
       ) : (
-        <Sun className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+        <Moon className="w-5 h-5 text-gray-700" />
       )}
     </button>
   );

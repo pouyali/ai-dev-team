@@ -6,15 +6,15 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next.js App with Dark Mode",
-  description: "A Next.js application with dark/light mode toggle",
+  title: "Next.js with Dark/Light Mode",
+  description: "A Next.js project with Tailwind CSS and theme toggle",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
