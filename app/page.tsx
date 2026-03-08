@@ -26,12 +26,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-red-500 dark:bg-red-700 transition-colors duration-200">
+    <main className="min-h-screen bg-red-500 dark:bg-red-500 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-lg bg-red-400 dark:bg-red-600 hover:bg-red-300 dark:hover:bg-red-500 transition-colors duration-200"
+            className="p-3 rounded-lg bg-red-400 dark:bg-red-600 hover:bg-red-300 dark:hover:bg-red-400 transition-colors duration-200"
             aria-label="Toggle dark mode"
           >
             {darkMode ? (
