@@ -1,41 +1,45 @@
 'use client';
 
+import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
 /**
  * ThemeToggle component that provides a button to switch between light and dark themes
+ * Uses next-themes for proper SSR handling and theme persistence
  * @returns JSX element containing the theme toggle button
  */
 export default function ThemeToggle(): JSX.Element {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
+  // useEffect only runs on the client, so now we can safely show the UI
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-    
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    setMounted(true);
   }, []);
 
+  if (!mounted) {
+    return (
+      <div className="p-3 rounded-lg bg-red-600 dark:bg-red-800">
+        <div className="w-6 h-6" />
+      </div>
+    );
+  }
+
   const toggleTheme = (): void => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+      className="p-3 rounded-lg bg-red-600 dark:bg-red-800 hover:bg-red-500 dark:hover:bg-red-700 transition-colors duration-200"
       aria-label="Toggle theme"
     >
-      {theme === 'light' ? (
-        <Moon className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+      {theme === 'dark' ? (
+        <Sun className="w-6 h-6 text-yellow-300" />
       ) : (
-        <Sun className="w-5 h-5 text-gray-800 dark:text-gray-200" />
+        <Moon className="w-6 h-6 text-white" />
       )}
     </button>
   );
