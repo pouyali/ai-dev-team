@@ -70,7 +70,7 @@ export default function Home() {
             </div>
 
             <div className="p-6 bg-red-600 dark:bg-red-800 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibent mb-3 text-white">
+              <h2 className="text-2xl font-semibold mb-3 text-white">
                 Dark Mode
               </h2>
               <p className="text-red-100">
