@@ -17,6 +17,10 @@ const config: Config = {
           DEFAULT: "#22c55e",
           dark: "#16a34a",
         },
+        green: {
+          500: "#22c55e",
+          600: "#16a34a",
+        },
       },
     },
   },
