@@ -26,12 +26,12 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-red-500 dark:bg-red-700 transition-colors duration-200">
+    <main className="min-h-screen bg-red-600 dark:bg-red-800 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-lg bg-red-400 dark:bg-red-600 hover:bg-red-300 dark:hover:bg-red-500 transition-colors duration-200"
+            className="p-3 rounded-lg bg-red-500 dark:bg-red-700 hover:bg-red-400 dark:hover:bg-red-600 transition-colors duration-200"
             aria-label="Toggle dark mode"
           >
             {darkMode ? (
@@ -51,7 +51,7 @@ export default function Home() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 bg-red-400 dark:bg-red-600 rounded-lg shadow-lg">
+            <div className="p-6 bg-red-500 dark:bg-red-700 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Fast Refresh
               </h2>
@@ -60,7 +60,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 bg-red-400 dark:bg-red-600 rounded-lg shadow-lg">
+            <div className="p-6 bg-red-500 dark:bg-red-700 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Tailwind CSS
               </h2>
@@ -69,7 +69,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="p-6 bg-red-400 dark:bg-red-600 rounded-lg shadow-lg">
+            <div className="p-6 bg-red-500 dark:bg-red-700 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-3 text-white">
                 Dark Mode
               </h2>
