@@ -26,54 +26,54 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+    <main className="min-h-screen bg-emerald-500 dark:bg-emerald-900 transition-colors duration-200">
       <div className="container mx-auto px-4 py-16">
         <div className="flex justify-end mb-8">
           <button
             onClick={toggleDarkMode}
-            className="p-3 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+            className="p-3 rounded-lg bg-emerald-600 dark:bg-emerald-800 hover:bg-emerald-700 dark:hover:bg-emerald-700 transition-colors duration-200"
             aria-label="Toggle dark mode"
           >
             {darkMode ? (
               <Sun className="w-6 h-6 text-yellow-500" />
             ) : (
-              <Moon className="w-6 h-6 text-gray-700" />
+              <Moon className="w-6 h-6 text-white" />
             )}
           </button>
         </div>
 
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6 text-gray-900 dark:text-white">
+          <h1 className="text-5xl font-bold mb-6 text-white dark:text-white">
             Welcome to Next.js
           </h1>
-          <p className="text-xl mb-8 text-gray-600 dark:text-gray-300">
+          <p className="text-xl mb-8 text-emerald-100 dark:text-emerald-200">
             A modern Next.js application with Tailwind CSS and dark mode support
           </p>
 
           <div className="grid md:grid-cols-3 gap-6 mt-12">
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+            <div className="p-6 bg-emerald-600 dark:bg-emerald-800 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-3 text-white dark:text-white">
                 Fast Refresh
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-emerald-100 dark:text-emerald-200">
                 Enjoy instant feedback on edits with Fast Refresh
               </p>
             </div>
 
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+            <div className="p-6 bg-emerald-600 dark:bg-emerald-800 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-3 text-white dark:text-white">
                 Tailwind CSS
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-emerald-100 dark:text-emerald-200">
                 Utility-first CSS framework for rapid UI development
               </p>
             </div>
 
-            <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold mb-3 text-gray-900 dark:text-white">
+            <div className="p-6 bg-emerald-600 dark:bg-emerald-800 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-semibold mb-3 text-white dark:text-white">
                 Dark Mode
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-emerald-100 dark:text-emerald-200">
                 Toggle between light and dark themes seamlessly
               </p>
             </div>
