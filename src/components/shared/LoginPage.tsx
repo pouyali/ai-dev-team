@@ -23,13 +23,18 @@ export default function LoginPage(): JSX.Element {
   };
 
   const handleQuickLogin = async (role: UserRole) => {
+    setError('');
     const emails: Record<UserRole, string> = {
       volunteer: 'volunteer@example.com',
       senior: 'senior@example.com',
       admin: 'admin@example.com',
     };
     
-    await login(emails[role], 'demo', role);
+    const success = await login(emails[role], 'demo', role);
+    
+    if (!success) {
+      setError('Quick login failed. Please try again.');
+    }
   };
 
   return (
