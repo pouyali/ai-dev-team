@@ -1,5 +1,11 @@
+/**
+ * User role types for the application
+ */
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
+/**
+ * User interface representing all user types in the system
+ */
 export interface User {
   id: string;
   name: string;
@@ -18,8 +24,33 @@ export interface User {
   };
 }
 
+/**
+ * Request status types representing the lifecycle of a help request
+ */
 export type RequestStatus = 'pending' | 'accepted' | 'started' | 'in-progress' | 'finishing' | 'completed' | 'rejected';
 
+/**
+ * Request category types
+ */
+export type RequestCategory = 'groceries' | 'medical' | 'transportation' | 'home-repair' | 'technology' | 'shopping' | 'other';
+
+/**
+ * Urgency levels for requests
+ */
+export type UrgencyLevel = 'low' | 'medium' | 'high';
+
+/**
+ * Location interface for geographic coordinates
+ */
+export interface Location {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+/**
+ * Request interface representing a help request from a senior
+ */
 export interface Request {
   id: string;
   title: string;
@@ -29,7 +60,7 @@ export interface Request {
   volunteerId?: string;
   volunteerName?: string;
   status: RequestStatus;
-  location: { address: string; lat: number; lng: number };
+  location: Location;
   scheduledDate: string;
   scheduledTime: string;
   duration?: string;
@@ -37,10 +68,13 @@ export interface Request {
   acceptedAt?: string;
   startedAt?: string;
   completedAt?: string;
-  category?: 'groceries' | 'medical' | 'transportation' | 'home-repair' | 'technology' | 'shopping' | 'other';
-  urgency?: 'low' | 'medium' | 'high';
+  category?: RequestCategory;
+  urgency?: UrgencyLevel;
 }
 
+/**
+ * Location tracking interface for real-time volunteer tracking
+ */
 export interface LocationTracking {
   requestId: string;
   volunteerId: string;
@@ -50,6 +84,9 @@ export interface LocationTracking {
   isActive: boolean;
 }
 
+/**
+ * Review interface for feedback after completed requests
+ */
 export interface Review {
   id: string;
   requestId: string;
@@ -63,6 +100,9 @@ export interface Review {
   createdAt: string;
 }
 
+/**
+ * Notification interface for user notifications
+ */
 export interface Notification {
   id: string;
   userId: string;
