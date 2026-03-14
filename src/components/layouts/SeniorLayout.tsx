@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LayoutDashboard, Plus, List, User } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, ClipboardList, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import TopBar from '../shared/TopBar';
 import NavTabs from '../shared/NavTabs';
@@ -20,8 +20,8 @@ export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Eleme
 
   const tabs = [
     { label: 'Dashboard', icon: LayoutDashboard },
-    { label: 'Create Request', icon: Plus },
-    { label: 'My Requests', icon: List },
+    { label: 'Create Request', icon: PlusCircle },
+    { label: 'My Requests', icon: ClipboardList },
     { label: 'Profile', icon: User }
   ];
 
