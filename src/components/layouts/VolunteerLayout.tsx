@@ -31,8 +31,9 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
     n => n.userId === currentUser?.id && !n.read
   ).length;
 
+  // Only add badge to Notifications tab when unreadCount > 0
   const tabs = TABS.map(tab => 
-    tab.label === 'Notifications' 
+    tab.label === 'Notifications' && unreadCount > 0
       ? { ...tab, badge: unreadCount }
       : tab
   );
