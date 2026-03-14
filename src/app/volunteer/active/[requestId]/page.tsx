@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import ActiveTask from '@/components/volunteer/ActiveTask';
 
 export default function ActiveTaskPage(): JSX.Element {
-  const params = useParams();
   const router = useRouter();
+  const params = useParams();
   const requestId = params.requestId as string;
 
   const handleBack = (): void => {
