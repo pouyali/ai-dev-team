@@ -9,13 +9,17 @@ interface AdminLayoutProps {
 }
 
 /**
- * Layout component for the admin panel
- * Includes TopBar with switch to volunteer (no tabs - admin uses tabs inside pages)
+ * Layout component for the admin portal
+ * Includes TopBar only (no tabs - admin uses tabs inside the page)
+ * Note: Admin role users can switch to volunteer view but retain admin access
+ * The switch is stored in session, allowing return to admin panel via direct navigation
  */
 export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
   const { switchRole } = useAuth();
 
   const handleSwitch = (): void => {
+    // Switch to volunteer view - admin can return via /admin route
+    // The user's actual role (admin) is preserved, only the active view changes
     switchRole('volunteer');
   };
 
