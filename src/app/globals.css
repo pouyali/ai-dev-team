@@ -3,22 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --background: #3b82f6;
+  --background: #dc2626;
   --foreground: #ffffff;
-  --gradient-1: #3b82f6;
-  --gradient-2: #2563eb;
-  --gradient-3: #1d4ed8;
-  --gradient-4: #1e40af;
+  --gradient-1: #dc2626;
+  --gradient-2: #b91c1c;
+  --gradient-3: #991b1b;
+  --gradient-4: #7f1d1d;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1e40af;
+    --background: #7f1d1d;
     --foreground: #ffffff;
-    --gradient-1: #1e40af;
-    --gradient-2: #1e3a8a;
-    --gradient-3: #1e3a8a;
-    --gradient-4: #1a365d;
+    --gradient-1: #7f1d1d;
+    --gradient-2: #6b1e1e;
+    --gradient-3: #581c1c;
+    --gradient-4: #451a1a;
   }
 }
 
@@ -85,10 +85,10 @@ body {
   bottom: 0;
   background: linear-gradient(
     45deg,
-    rgba(59, 130, 246, 0.1),
-    rgba(37, 99, 235, 0.1),
-    rgba(29, 78, 216, 0.1),
-    rgba(30, 64, 175, 0.1)
+    rgba(220, 38, 38, 0.1),
+    rgba(185, 28, 28, 0.1),
+    rgba(153, 27, 27, 0.1),
+    rgba(127, 29, 29, 0.1)
   );
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
