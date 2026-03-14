@@ -1,51 +1,85 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/AuthContext'
-import TopBar from '@/components/shared/TopBar'
-import NavTabs from '@/components/shared/NavTabs'
+import React from 'react'
 import { Home, Calendar, Bell, Star } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
+import { useData } from '@/contexts/DataContext'
+import NavTabs from '@/components/ui/NavTabs'
 
-export default function VolunteerPortalLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+function TopBar(): JSX.Element {
+  const { user, login, logout } = useAuth()
   const router = useRouter()
-  const { user, switchRole } = useAuth()
+
+  function handleSwitch(role: 'volunteer' | 'senior' | 'admin'): void {
+    const roleToUserId: Record<string, string> = {
+      volunteer: '1',
+      senior: '2',
+      admin: '3',
+    }
+    const userId = roleToUserId[role]
+    if (userId) {
+      login(userId)
+      if (role === 'senior') {
+        router.push('/senior')
+      } else if (role === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/volunteer')
+      }
+    }
+  }
+
+  return (
+    <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 className="text-base font-bold text-gray-900">Volunteer Portal</h1>
+        {user && (
+          <p className="text-xs text-gray-500">{user.name}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-2">
+        <select
+          value={user?.role ?? 'volunteer'}
+          onChange={(e) => handleSwitch(e.target.value as 'volunteer' | 'senior' | 'admin')}
+          className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-black"
+        >
+          <option value="volunteer">Volunteer</option>
+          <option value="senior">Senior</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button
+          onClick={() => { logout(); router.push('/login') }}
+          className="text-xs text-gray-500 hover:text-gray-800 transition-colors px-2 py-1 border border-gray-200 rounded-md"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export default function VolunteerPortalLayout({
+  children,
+}: {
+  children: React.ReactNode
+}): JSX.Element {
+  const { user } = useAuth()
+  const { getUnreadCount } = useData()
+  const unreadCount = getUnreadCount(user?.id ?? '')
 
   const tabs = [
     { label: 'Requests', href: '/volunteer', icon: Home },
     { label: 'Schedule', href: '/volunteer/schedule', icon: Calendar },
-    { label: 'Notifications', href: '/volunteer/notifications', icon: Bell },
+    { label: 'Notifications', href: '/volunteer/notifications', icon: Bell, badge: unreadCount },
     { label: 'Reviews', href: '/volunteer/reviews', icon: Star },
   ]
 
-  // Exact match for root, prefix match for others
-  const activeTab = tabs.find(t =>
-    t.href === '/volunteer'
-      ? pathname === '/volunteer'
-      : pathname === t.href || pathname.startsWith(t.href + '/')
-  )?.label ?? 'Requests'
-
-  const handleSwitch = () => {
-    if (switchRole) switchRole('senior')
-    router.push('/senior')
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar
-        portalName="Volunteer Portal"
-        switchLabel="Switch to Senior"
-        onSwitch={handleSwitch}
-      />
-      <NavTabs
-        tabs={tabs}
-        active={activeTab}
-        onChange={(label) => {
-          const tab = tabs.find(t => t.label === label)
-          if (tab) router.push(tab.href)
-        }}
-      />
-      <main className="max-w-4xl mx-auto px-4 py-6">{children}</main>
+      <TopBar />
+      <NavTabs tabs={tabs} />
+      <main className="max-w-2xl mx-auto px-4 py-6">{children}</main>
     </div>
   )
 }
