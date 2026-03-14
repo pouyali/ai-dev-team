@@ -3,6 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TopBarProps {
   portalName: string;
@@ -42,14 +43,14 @@ export default function TopBar({ portalName, switchLabel, onSwitch }: TopBarProp
 
         {/* Right side - Switch button and avatar */}
         <div className="flex items-center gap-3">
-          <button
+          <Button
+            variant="outline"
             onClick={onSwitch}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             {switchLabel}
-          </button>
-          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-700">
+          </Button>
+          <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+            <span className="text-sm font-medium text-white">
               {currentUser ? getInitials(currentUser.name) : 'U'}
             </span>
           </div>
