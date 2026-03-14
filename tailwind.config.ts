@@ -5,6 +5,7 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: "class",
   theme: {
@@ -18,6 +19,7 @@ const config: Config = {
         'gradient-pulse': 'gradientPulse 3s ease-in-out infinite',
         'gradient-slow': 'gradientShift 25s ease infinite',
         'gradient-fast': 'gradientShift 8s ease infinite',
+        'toast-slide-up': 'toastSlideUp 0.3s ease-out',
       },
       keyframes: {
         gradientShift: {
@@ -37,6 +39,16 @@ const config: Config = {
           },
           '50%': {
             opacity: '0.8',
+          },
+        },
+        toastSlideUp: {
+          '0%': {
+            transform: 'translateY(100%)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
           },
         },
       },
