@@ -9,13 +9,13 @@ interface AdminLayoutProps {
 }
 
 /**
- * Layout component for the Admin Portal
- * Includes TopBar and main content area (no NavTabs - admin uses in-page tabs)
+ * Layout component for the admin portal
+ * Includes TopBar only (tabs are inside the page content)
  */
 export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
   const { switchRole } = useAuth();
 
-  const handleSwitch = () => {
+  const handleSwitch = (): void => {
     switchRole('volunteer');
   };
 
@@ -26,7 +26,7 @@ export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element
         switchLabel="Switch to Volunteer"
         onSwitch={handleSwitch}
       />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="p-6">
         {children}
       </main>
     </div>
