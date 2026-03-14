@@ -1,14 +1,12 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { DataProvider, useData } from '@/contexts/DataContext';
+import { useData } from '@/contexts/DataContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock, MapPin, User } from 'lucide-react';
 
-function ActiveTaskContent(): JSX.Element {
+export default function ActiveTaskPage(): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const { getRequestById, getUserById, completeTask } = useData();
@@ -113,15 +111,5 @@ function ActiveTaskContent(): JSX.Element {
         </Card>
       </main>
     </div>
-  );
-}
-
-export default function ActiveTaskPage(): JSX.Element {
-  return (
-    <AuthProvider>
-      <DataProvider>
-        <ActiveTaskContent />
-      </DataProvider>
-    </AuthProvider>
   );
 }
