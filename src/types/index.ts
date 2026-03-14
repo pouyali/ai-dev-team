@@ -1,101 +1,58 @@
 /**
- * Core type definitions for the VolunteerConnect application
+ * Core type definitions for VolunteerConnect
  */
 
-/**
- * Urgency level for help requests
- */
-export type UrgencyLevel = 'low' | 'medium' | 'high';
-
-/**
- * Status of a help request
- */
-export type RequestStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
-
-/**
- * User roles in the system
- */
+/** User roles in the system */
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
-/**
- * Location information
- */
-export interface Location {
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
+/** Status of a help request */
+export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
 
-/**
- * User profile information
- */
+/** Urgency level for help requests */
+export type UrgencyLevel = 'low' | 'medium' | 'high';
+
+/** User profile information */
 export interface User {
   id: string;
-  email: string;
   name: string;
+  email: string;
+  phone: string;
   role: UserRole;
-  phone?: string;
-  location?: Location;
-  avatar?: string;
-  bio?: string;
-  skills?: string[];
-  availability?: string[];
-  createdAt: string;
-  updatedAt: string;
+  location: string;
+  rating: number;
+  totalReviews: number;
+  createdAt: Date;
 }
 
-/**
- * Help request created by seniors
- */
+/** Help request from a senior */
 export interface HelpRequest {
   id: string;
+  requesterId: string;
   title: string;
   description: string;
   category: string;
   urgency: UrgencyLevel;
   status: RequestStatus;
-  seniorId: string;
-  senior?: User;
-  volunteerId?: string;
-  volunteer?: User;
-  location?: Location;
-  scheduledDate?: string;
-  scheduledTime?: string;
-  estimatedDuration?: number;
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
+  location: string;
+  scheduledDate?: Date;
+  assignedVolunteerId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-/**
- * Review/rating for completed requests
- */
-export interface Review {
-  id: string;
-  requestId: string;
-  reviewerId: string;
-  revieweeId: string;
-  rating: number;
-  comment?: string;
-  createdAt: string;
-}
-
-/**
- * Notification for users
- */
+/** Notification for users */
 export interface Notification {
   id: string;
   userId: string;
-  type: 'request_created' | 'request_accepted' | 'request_completed' | 'message' | 'reminder';
+  type: 'request' | 'assignment' | 'reminder' | 'system';
   title: string;
   message: string;
   read: boolean;
-  relatedRequestId?: string;
-  createdAt: string;
+  createdAt: Date;
 }
+
+/** Priority levels */
+export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+
+/** Request categories */
+export type Category = 'transportation' | 'groceries' | 'medical' | 'companionship' | 'household' | 'technology' | 'other';
