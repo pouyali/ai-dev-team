@@ -1,88 +1,80 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Users, Shield, Heart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
 
 /**
- * Login page component for user authentication
- * Allows users to select a role and login
+ * Login page component for role selection
  */
 export default function LoginPage(): JSX.Element {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<UserRole>('volunteer');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (): void => {
-    login(selectedRole);
+  const handleLogin = async (role: UserRole): Promise<void> => {
+    setIsLoading(true);
+    // Simulate login delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    login(role);
+    setIsLoading(false);
   };
 
+  const roleCards = [
+    {
+      role: 'volunteer' as UserRole,
+      title: 'Volunteer',
+      description: 'Help seniors in your community with everyday tasks',
+      icon: Heart,
+      color: 'bg-blue-500'
+    },
+    {
+      role: 'senior' as UserRole,
+      title: 'Senior',
+      description: 'Request help from caring volunteers nearby',
+      icon: Users,
+      color: 'bg-green-500'
+    },
+    {
+      role: 'admin' as UserRole,
+      title: 'Admin',
+      description: 'Manage users, requests, and platform settings',
+      icon: Shield,
+      color: 'bg-purple-500'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">VolunteerConnect</h1>
-          <p className="text-gray-500 mt-2">Select a role to continue</p>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+      <div className="text-center mb-10">
+        <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Users className="w-8 h-8 text-white" />
         </div>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">VolunteerConnect</h1>
+        <p className="text-gray-600">Connecting volunteers with seniors who need assistance</p>
+      </div>
 
-        <div className="space-y-3 mb-6">
-          <button
-            onClick={() => setSelectedRole('volunteer')}
-            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-              selectedRole === 'volunteer'
-                ? 'border-gray-900 bg-gray-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="font-medium text-gray-900">Volunteer</div>
-            <div className="text-sm text-gray-500">Help seniors in your community</div>
-          </button>
-
-          <button
-            onClick={() => setSelectedRole('senior')}
-            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-              selectedRole === 'senior'
-                ? 'border-gray-900 bg-gray-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="font-medium text-gray-900">Senior</div>
-            <div className="text-sm text-gray-500">Request assistance from volunteers</div>
-          </button>
-
-          <button
-            onClick={() => setSelectedRole('admin')}
-            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-              selectedRole === 'admin'
-                ? 'border-gray-900 bg-gray-50'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div className="font-medium text-gray-900">Admin</div>
-            <div className="text-sm text-gray-500">Manage the platform</div>
-          </button>
+      <div className="w-full max-w-3xl">
+        <h2 className="text-xl font-semibold text-gray-900 text-center mb-6">Select your role to continue</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {roleCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <button
+                key={card.role}
+                onClick={() => handleLogin(card.role)}
+                disabled={isLoading}
+                className="bg-white border border-gray-200 rounded-xl p-6 text-left hover:shadow-lg hover:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <div className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center mb-4`}>
+                  <Icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{card.title}</h3>
+                <p className="text-sm text-gray-600">{card.description}</p>
+              </button>
+            );
+          })}
         </div>
-
-        <button
-          onClick={handleLogin}
-          className="w-full py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
-        >
-          Continue as {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
-        </button>
       </div>
     </div>
   );
