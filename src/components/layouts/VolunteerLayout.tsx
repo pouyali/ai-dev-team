@@ -1,66 +1,66 @@
 'use client';
 
-import React, { ReactNode, useState, useEffect } from 'react';
-import TopNav from '../shared/TopNav';
+import React, { useState, useEffect } from 'react';
+import { Home, Calendar, Bell, Star } from 'lucide-react';
+import TopBar from '../shared/TopBar';
+import NavTabs from '../shared/NavTabs';
+import { useAuth } from '../../contexts/AuthContext';
+import { useData } from '../../contexts/DataContext';
 
-/**
- * Volunteer layout props
- */
 interface VolunteerLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 /**
- * Navigation tabs for volunteer portal
- */
-const volunteerTabs = [
-  { id: 'dashboard', label: 'Dashboard', path: '/volunteer' },
-  { id: 'requests', label: 'Available Requests', path: '/volunteer/requests' },
-  { id: 'my-tasks', label: 'My Tasks', path: '/volunteer/my-tasks' },
-  { id: 'history', label: 'History', path: '/volunteer/history' },
-  { id: 'profile', label: 'Profile', path: '/volunteer/profile' },
-];
-
-/**
- * Get active tab from current path
- */
-function getActiveTabFromPath(path: string): string {
-  if (path.includes('/requests')) return 'requests';
-  if (path.includes('/my-tasks')) return 'my-tasks';
-  if (path.includes('/history')) return 'history';
-  if (path.includes('/profile')) return 'profile';
-  return 'dashboard';
-}
-
-/**
- * Volunteer layout component with navigation
+ * Layout component for the volunteer portal
+ * Includes TopBar, NavTabs, and main content area
  */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { switchRole, currentUser } = useAuth();
+  const { notifications } = useData();
+  const [activeTab, setActiveTab] = useState<string>('Requests');
 
-  useEffect(() => {
-    // In a real app with react-router, we would use useLocation here
-    // For now, derive from window.location if available
-    if (typeof window !== 'undefined') {
-      setActiveTab(getActiveTabFromPath(window.location.pathname));
-    }
-  }, []);
+  // Count unread notifications for the current user
+  const unreadCount = notifications.filter(
+    (n) => n.userId === currentUser?.id && !n.read
+  ).length;
 
-  const handleTabChange = (tabId: string): void => {
-    setActiveTab(tabId);
-    // In a real app with react-router, we would use navigate here
-    const tab = volunteerTabs.find(t => t.id === tabId);
-    if (tab && typeof window !== 'undefined') {
-      window.history.pushState({}, '', tab.path);
-    }
+  const tabs = [
+    { label: 'Requests', icon: Home },
+    { label: 'Schedule', icon: Calendar },
+    { label: 'Notifications', icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
+    { label: 'Reviews', icon: Star },
+  ];
+
+  const handleSwitch = (): void => {
+    switchRole('senior');
   };
+
+  const handleTabChange = (label: string): void => {
+    setActiveTab(label);
+    // Update URL without page reload for better UX
+    const tabSlug = label.toLowerCase().replace(' ', '-');
+    window.history.pushState({}, '', `/volunteer/${tabSlug}`);
+  };
+
+  // Set initial tab based on URL
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.includes('schedule')) setActiveTab('Schedule');
+    else if (path.includes('notifications')) setActiveTab('Notifications');
+    else if (path.includes('reviews')) setActiveTab('Reviews');
+    else setActiveTab('Requests');
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopNav tabs={volunteerTabs} activeTab={activeTab} onTabChange={handleTabChange} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+      <TopBar
+        portalName="Volunteer Portal"
+        switchLabel="Switch to Senior"
+        onSwitch={handleSwitch}
+      />
+      <NavTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
+      <main className="p-6">{children}</main>
     </div>
   );
 }
