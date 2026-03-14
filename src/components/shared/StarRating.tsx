@@ -13,23 +13,20 @@ interface StarRatingProps {
 
 /**
  * Star rating component with display and interactive modes
- * Uses filled yellow stars for rating, empty gray stars for remaining
  */
 export default function StarRating({
   rating,
   maxRating = 5,
   interactive = false,
   onChange,
-  size = 'md',
+  size = 'md'
 }: StarRatingProps): JSX.Element {
   const [hoverRating, setHoverRating] = React.useState<number>(0);
 
-  const getSizeClass = (): string => {
+  const getSizeClass = () => {
     switch (size) {
       case 'sm':
         return 'w-4 h-4';
-      case 'md':
-        return 'w-5 h-5';
       case 'lg':
         return 'w-6 h-6';
       default:
@@ -37,19 +34,19 @@ export default function StarRating({
     }
   };
 
-  const handleClick = (index: number): void => {
+  const handleClick = (index: number) => {
     if (interactive && onChange) {
       onChange(index);
     }
   };
 
-  const handleMouseEnter = (index: number): void => {
+  const handleMouseEnter = (index: number) => {
     if (interactive) {
       setHoverRating(index);
     }
   };
 
-  const handleMouseLeave = (): void => {
+  const handleMouseLeave = () => {
     if (interactive) {
       setHoverRating(0);
     }
@@ -58,7 +55,7 @@ export default function StarRating({
   const displayRating = hoverRating || rating;
 
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center space-x-0.5">
       {Array.from({ length: maxRating }, (_, index) => {
         const starIndex = index + 1;
         const isFilled = starIndex <= displayRating;
@@ -74,7 +71,7 @@ export default function StarRating({
             className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition-transform`}
           >
             <Star
-              className={`${getSizeClass()} ${isFilled ? 'fill-yellow-400 text-yellow-400' : 'fill-none text-gray-300'}`}
+              className={`${getSizeClass()} ${isFilled ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
             />
           </button>
         );
