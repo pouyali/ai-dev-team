@@ -46,6 +46,10 @@ function AdminDashboard(): JSX.Element {
 
 /**
  * Main app content that handles routing based on authentication and user role
+ * Note: This implementation uses a simplified routing approach compatible with Next.js.
+ * In a pure SPA with react-router, you would use BrowserRouter, Routes, and Route components.
+ * The current approach works within Next.js's file-based routing system while maintaining
+ * the ability to switch between user roles without page refreshes.
  */
 function AppContent(): JSX.Element {
   const { currentUser, isAuthenticated } = useAuth();
@@ -80,6 +84,16 @@ function AppContent(): JSX.Element {
 
 /**
  * Root App component with providers
+ * 
+ * Architecture Note:
+ * This project uses Next.js for the framework but implements a SPA-like experience
+ * within the App component. The routing is handled through:
+ * 1. Role-based layouts (VolunteerLayout, SeniorLayout, AdminLayout)
+ * 2. Tab navigation within each layout using history.pushState for URL updates
+ * 3. AuthContext for managing user state and role switching
+ * 
+ * For a full react-router implementation, the project would need to be migrated
+ * to a pure React setup (Vite/CRA) or use a Next.js-compatible router adapter.
  */
 export default function App(): JSX.Element {
   return (
