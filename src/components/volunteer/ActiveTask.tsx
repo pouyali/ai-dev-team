@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useData } from '@/contexts/DataContext';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -14,8 +15,25 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { MapPin, Clock, Navigation, ArrowLeft } from 'lucide-react';
-import { HelpRequest } from '@/types';
+import { MapPin, Clock, ArrowLeft } from 'lucide-react';
+
+// Dynamically import react-leaflet components to avoid SSR issues
+const MapContainer = dynamic(
+  () => import('react-leaflet').then(mod => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import('react-leaflet').then(mod => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import('react-leaflet').then(mod => mod.Marker),
+  { ssr: false }
+);
+const Polyline = dynamic(
+  () => import('react-leaflet').then(mod => mod.Polyline),
+  { ssr: false }
+);
 
 interface ActiveTaskProps {
   requestId: string;
@@ -32,6 +50,7 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
+  const [mapReady, setMapReady] = useState(false);
 
   // Destination (senior's location)
   const destination = {
@@ -56,6 +75,11 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
 
   const distance = calculateDistance();
   const eta = Math.ceil(distance * 3); // Rough estimate: 3 minutes per mile
+
+  // Set map ready after component mounts (for SSR)
+  useEffect(() => {
+    setMapReady(true);
+  }, []);
 
   // Simulate volunteer moving toward destination
   useEffect(() => {
@@ -109,52 +133,42 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
     );
   }
 
+  const centerLat = (volunteerPosition.lat + destination.lat) / 2;
+  const centerLng = (volunteerPosition.lng + destination.lng) / 2;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Map Section (60% height) */}
       <div className="h-[60vh] bg-gray-200 relative">
-        {/* Simple map placeholder - in real app, use react-leaflet */}
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-green-100">
-          <div className="text-center">
-            <div className="relative w-64 h-64">
-              {/* Destination marker */}
-              <div
-                className="absolute w-6 h-6 bg-red-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center"
-                style={{ top: '30%', left: '60%' }}
-              >
-                <MapPin className="w-4 h-4 text-white" />
-              </div>
-              {/* Volunteer marker */}
-              <div
-                className="absolute w-6 h-6 bg-blue-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-all duration-1000"
-                style={{
-                  top: `${30 + (1 - distance / 2) * 20}%`,
-                  left: `${60 - (1 - distance / 2) * 30}%`,
-                }}
-              >
-                <Navigation className="w-4 h-4 text-white" />
-              </div>
-              {/* Line between markers */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                <line
-                  x1="40%"
-                  y1="60%"
-                  x2="60%"
-                  y2="35%"
-                  stroke="#3B82F6"
-                  strokeWidth="2"
-                  strokeDasharray="5,5"
-                />
-              </svg>
-            </div>
-            <p className="text-gray-600 mt-4">Interactive map would render here with react-leaflet</p>
-          </div>
-        </div>
+        {mapReady && typeof window !== 'undefined' && (
+          <MapContainer
+            center={[centerLat, centerLng]}
+            zoom={13}
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {/* Volunteer marker (blue) */}
+            <Marker position={[volunteerPosition.lat, volunteerPosition.lng]} />
+            {/* Senior marker (red) */}
+            <Marker position={[destination.lat, destination.lng]} />
+            {/* Polyline between markers */}
+            <Polyline
+              positions={[
+                [volunteerPosition.lat, volunteerPosition.lng],
+                [destination.lat, destination.lng],
+              ]}
+              color="blue"
+            />
+          </MapContainer>
+        )}
 
         {/* Back button */}
         <button
           onClick={onBack}
-          className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-lg hover:bg-gray-50"
+          className="absolute top-4 left-4 z-[1000] bg-white rounded-full p-2 shadow-lg hover:bg-gray-50"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -181,12 +195,12 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
 
           <div className="mt-6">
             {taskStatus === 'traveling' && (
-              <Button onClick={handleMarkInProgress} className="w-full">
+              <Button onClick={handleMarkInProgress} className="w-full bg-gray-900 hover:bg-gray-800">
                 Mark In Progress
               </Button>
             )}
             {taskStatus === 'in_progress' && (
-              <Button onClick={handleCompleteTask} className="w-full">
+              <Button onClick={handleCompleteTask} className="w-full bg-gray-900 hover:bg-gray-800">
                 Complete Task
               </Button>
             )}
