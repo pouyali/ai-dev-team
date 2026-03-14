@@ -1,171 +1,56 @@
 'use client';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  LayoutDashboard,
-  Users,
-  FileText,
-  Settings,
-  Bell,
-  LogOut,
-  Heart,
-  Menu,
-  X,
-  ChevronDown,
-  BarChart3,
-  Shield,
-} from 'lucide-react';
-
-interface NavItem {
-  icon: React.ReactNode;
-  label: string;
-  href: string;
-  badge?: number;
-}
+import TopBar from '@/components/shared/TopBar';
+import { Home, Users, FileText, BarChart3, Settings, Shield } from 'lucide-react';
 
 interface AdminLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
-  const { user, logout } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [notificationCount] = React.useState(5);
-  
-  // Get current path from window.location for client-side routing
-  const [currentPath, setCurrentPath] = React.useState('/admin/dashboard');
-  
-  React.useEffect(() => {
-    setCurrentPath(window.location.pathname);
-  }, []);
+  const { user } = useAuth();
 
-  const navItems: NavItem[] = [
-    { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard', href: '/admin/dashboard' },
-    { icon: <FileText className="w-5 h-5" />, label: 'All Requests', href: '/admin/requests', badge: 12 },
-    { icon: <Users className="w-5 h-5" />, label: 'Users', href: '/admin/users' },
-    { icon: <BarChart3 className="w-5 h-5" />, label: 'Analytics', href: '/admin/analytics' },
-    { icon: <Settings className="w-5 h-5" />, label: 'Settings', href: '/admin/settings' },
+  const navItems = [
+    { icon: Home, label: 'Dashboard', href: '/admin' },
+    { icon: FileText, label: 'All Requests', href: '/admin/requests' },
+    { icon: Users, label: 'Users', href: '/admin/users' },
+    { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
+    { icon: Shield, label: 'Moderation', href: '/admin/moderation' },
+    { icon: Settings, label: 'Settings', href: '/admin/settings' },
   ];
-
-  const isActive = (href: string): boolean => currentPath === href;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-100 transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-100">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-              <Heart className="w-4 h-4 text-white" />
+      <TopBar />
+      <div className="flex">
+        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center space-x-2">
+              <Shield className="w-5 h-5 text-blue-600" />
+              <span className="font-semibold text-gray-900">Admin Panel</span>
             </div>
-            <span className="font-semibold text-gray-900">HelpConnect</span>
-            <Badge variant="secondary" className="ml-1">
-              <Shield className="w-3 h-3 mr-1" />
-              Admin
-            </Badge>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="ml-auto lg:hidden p-1 hover:bg-gray-100 rounded"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
           </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1">
+          <nav className="p-4 space-y-2">
             {navItems.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  isActive(item.href)
-                    ? 'bg-gray-900 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+              <button
+                key={item.label}
+                className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                {item.icon}
+                <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
-                {item.badge && (
-                  <Badge
-                    variant={isActive(item.href) ? 'secondary' : 'default'}
-                    className="ml-auto"
-                  >
-                    {item.badge}
-                  </Badge>
-                )}
-              </a>
+              </button>
             ))}
           </nav>
-
-          {/* User section */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center gap-3 px-3 py-2">
-              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {user?.name || 'Admin'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+          {user && (
+            <div className="p-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500">Admin</p>
+              <p className="text-sm font-medium text-gray-900">{user.name}</p>
             </div>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 mt-2 text-gray-600 hover:text-gray-900"
-              onClick={logout}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </Button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-100">
-          <div className="flex items-center justify-between px-4 py-3 lg:px-6">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="p-2 -ml-2 hover:bg-gray-100 rounded-lg lg:hidden"
-            >
-              <Menu className="w-5 h-5 text-gray-600" />
-            </button>
-
-            <div className="flex items-center gap-3 ml-auto">
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg">
-                <Bell className="w-5 h-5 text-gray-600" />
-                {notificationCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {notificationCount}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Page content */}
-        <main className="p-4 lg:p-6">{children}</main>
+          )}
+        </aside>
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );
