@@ -1,98 +1,45 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { HelpRequest, Review, Notification, RequestStatus } from '@/types';
-import { mockRequests, mockReviews, mockNotifications } from '@/data/mockData';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+
+export interface Request {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  seniorId: string;
+  volunteerId?: string;
+  createdAt: Date;
+}
 
 interface DataContextType {
-  requests: HelpRequest[];
-  reviews: Review[];
-  notifications: Notification[];
-  addRequest: (request: Omit<HelpRequest, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateRequest: (id: string, updates: Partial<HelpRequest>) => void;
-  updateRequestStatus: (id: string, status: RequestStatus) => void;
-  addReview: (review: Omit<Review, 'id' | 'createdAt'>) => void;
-  markNotificationRead: (id: string) => void;
-  markAllNotificationsRead: (userId: string) => void;
+  requests: Request[];
+  addRequest: (request: Omit<Request, 'id' | 'createdAt'>) => void;
+  updateRequest: (id: string, updates: Partial<Request>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-interface DataProviderProps {
-  children: ReactNode;
-}
+export function DataProvider({ children }: { children: ReactNode }): JSX.Element {
+  const [requests, setRequests] = useState<Request[]>([]);
 
-export function DataProvider({ children }: DataProviderProps): JSX.Element {
-  const [requests, setRequests] = useState<HelpRequest[]>(mockRequests);
-  const [reviews, setReviews] = useState<Review[]>(mockReviews);
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
-
-  const addRequest = useCallback((request: Omit<HelpRequest, 'id' | 'createdAt' | 'updatedAt'>): void => {
-    const newRequest: HelpRequest = {
+  const addRequest = (request: Omit<Request, 'id' | 'createdAt'>) => {
+    const newRequest: Request = {
       ...request,
-      id: `req-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      id: Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
     };
     setRequests(prev => [...prev, newRequest]);
-  }, []);
+  };
 
-  const updateRequest = useCallback((id: string, updates: Partial<HelpRequest>): void => {
-    setRequests(prev => prev.map(req =>
-      req.id === id
-        ? { ...req, ...updates, updatedAt: new Date().toISOString() }
-        : req
-    ));
-  }, []);
-
-  const updateRequestStatus = useCallback((id: string, status: RequestStatus): void => {
-    setRequests(prev => prev.map(req =>
-      req.id === id
-        ? {
-            ...req,
-            status,
-            updatedAt: new Date().toISOString(),
-            completedAt: status === 'completed' ? new Date().toISOString() : req.completedAt
-          }
-        : req
-    ));
-  }, []);
-
-  const addReview = useCallback((review: Omit<Review, 'id' | 'createdAt'>): void => {
-    const newReview: Review = {
-      ...review,
-      id: `review-${Date.now()}`,
-      createdAt: new Date().toISOString()
-    };
-    setReviews(prev => [...prev, newReview]);
-  }, []);
-
-  const markNotificationRead = useCallback((id: string): void => {
-    setNotifications(prev => prev.map(notif =>
-      notif.id === id ? { ...notif, read: true } : notif
-    ));
-  }, []);
-
-  const markAllNotificationsRead = useCallback((userId: string): void => {
-    setNotifications(prev => prev.map(notif =>
-      notif.userId === userId ? { ...notif, read: true } : notif
-    ));
-  }, []);
-
-  const value: DataContextType = {
-    requests,
-    reviews,
-    notifications,
-    addRequest,
-    updateRequest,
-    updateRequestStatus,
-    addReview,
-    markNotificationRead,
-    markAllNotificationsRead
+  const updateRequest = (id: string, updates: Partial<Request>) => {
+    setRequests(prev =>
+      prev.map(req => (req.id === id ? { ...req, ...updates } : req))
+    );
   };
 
   return (
-    <DataContext.Provider value={value}>
+    <DataContext.Provider value={{ requests, addRequest, updateRequest }}>
       {children}
     </DataContext.Provider>
   );

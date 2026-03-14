@@ -1,151 +1,96 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Users, ArrowRight } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
+import { useAuth, UserRole } from '../../contexts/AuthContext';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Users, Heart, Shield } from 'lucide-react';
 
-/**
- * Login page component with user selection
- */
 export default function LoginPage(): JSX.Element {
-  const { login, mockUsers } = useAuth();
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('volunteer');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (): Promise<void> => {
-    if (!selectedUserId) return;
-    
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    login(selectedUserId);
-    setIsLoading(false);
+    try {
+      await login(email, password, selectedRole);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const groupedUsers = {
-    volunteer: mockUsers.filter(u => u.role === 'volunteer'),
-    senior: mockUsers.filter(u => u.role === 'senior'),
-    admin: mockUsers.filter(u => u.role === 'admin')
-  };
+  const roles: { value: UserRole; label: string; icon: React.ReactNode; description: string }[] = [
+    { value: 'volunteer', label: 'Volunteer', icon: <Heart className="w-5 h-5" />, description: 'Help seniors in your community' },
+    { value: 'senior', label: 'Senior', icon: <Users className="w-5 h-5" />, description: 'Request assistance from volunteers' },
+    { value: 'admin', label: 'Admin', icon: <Shield className="w-5 h-5" />, description: 'Manage the platform' },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center">
-            <Users className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">VolunteerConnect</h1>
-            <p className="text-sm text-gray-500">Select a user to continue</p>
-          </div>
-        </div>
-
-        {/* User selection */}
-        <div className="space-y-6">
-          {/* Volunteers */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Volunteers</h2>
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">VolunteerConnect</CardTitle>
+          <CardDescription>Sign in to continue</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              {groupedUsers.volunteer.map(user => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                    selectedUserId === user.id
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-blue-700">
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                </button>
-              ))}
+              <label className="text-sm font-medium text-gray-700">Select your role</label>
+              <div className="grid grid-cols-3 gap-2">
+                {roles.map((role) => (
+                  <button
+                    key={role.value}
+                    type="button"
+                    onClick={() => setSelectedRole(role.value)}
+                    className={`p-3 rounded-lg border text-center transition-colors ${
+                      selectedRole === role.value
+                        ? 'border-black bg-gray-900 text-white'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      {role.icon}
+                      <span className="text-xs font-medium">{role.label}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Seniors */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Seniors</h2>
-            <div className="space-y-2">
-              {groupedUsers.senior.map(user => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                    selectedUserId === user.id
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-green-700">
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                </button>
-              ))}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Password</label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Admins */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Admins</h2>
-            <div className="space-y-2">
-              {groupedUsers.admin.map(user => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUserId(user.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                    selectedUserId === user.id
-                      ? 'border-gray-900 bg-gray-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-purple-700">
-                      {user.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Login button */}
-        <button
-          onClick={handleLogin}
-          disabled={!selectedUserId || isLoading}
-          className="w-full mt-8 flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? (
-            <LoadingSpinner size="sm" />
-          ) : (
-            <>
-              Continue
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
-      </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

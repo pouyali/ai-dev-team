@@ -1,60 +1,86 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { User, UserRole } from '@/types';
-import { mockUsers } from '@/data/mockData';
+
+export type UserRole = 'volunteer' | 'senior' | 'admin';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  currentUser: User | null;
+  user: User | null;
   isAuthenticated: boolean;
-  mockUsers: User[];
-  login: (userId: string) => void;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  switchRole: (role: UserRole) => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+// Mock users for development
+const MOCK_USERS: Record<string, User & { password: string }> = {
+  'volunteer@test.com': {
+    id: '1',
+    email: 'volunteer@test.com',
+    name: 'John Volunteer',
+    role: 'volunteer',
+    password: 'password123',
+  },
+  'senior@test.com': {
+    id: '2',
+    email: 'senior@test.com',
+    name: 'Mary Senior',
+    role: 'senior',
+    password: 'password123',
+  },
+  'admin@test.com': {
+    id: '3',
+    email: 'admin@test.com',
+    name: 'Admin User',
+    role: 'admin',
+    password: 'password123',
+  },
+};
 
-export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const login = useCallback((userId: string): void => {
-    const user = mockUsers.find(u => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
+  const login = useCallback(async (email: string, password: string): Promise<void> => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const mockUser = MOCK_USERS[email.toLowerCase()];
+      if (!mockUser || mockUser.password !== password) {
+        throw new Error('Invalid email or password');
+      }
+
+      const { password: _, ...userWithoutPassword } = mockUser;
+      setUser(userWithoutPassword);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
   const logout = useCallback((): void => {
-    setCurrentUser(null);
-  }, []);
-
-  const switchRole = useCallback((role: UserRole): void => {
-    // Find a user with the target role
-    const targetUser = mockUsers.find(u => u.role === role);
-    if (targetUser) {
-      setCurrentUser(targetUser);
-    }
+    setUser(null);
   }, []);
 
   const value: AuthContextType = {
-    currentUser,
-    isAuthenticated: currentUser !== null,
-    mockUsers,
+    user,
+    isAuthenticated: !!user,
     login,
     logout,
-    switchRole
+    isLoading,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextType {

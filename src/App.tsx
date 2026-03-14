@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { DataProvider } from './contexts/DataContext';
-import { Button } from './components/ui/button';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { DataProvider } from '@/contexts/DataContext';
+import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import LoginPage from './components/shared/LoginPage';
-import VolunteerLayout from './components/layouts/VolunteerLayout';
-import SeniorLayout from './components/layouts/SeniorLayout';
-import AdminLayout from './components/layouts/AdminLayout';
+import LoginPage from '@/components/shared/LoginPage';
+import VolunteerLayout from '@/components/layouts/VolunteerLayout';
+import SeniorLayout from '@/components/layouts/SeniorLayout';
+import AdminLayout from '@/components/layouts/AdminLayout';
 
 /**
  * Placeholder component for volunteer dashboard
@@ -62,13 +62,13 @@ function AdminDashboard(): JSX.Element {
  * Main app content that handles routing based on authentication and user role
  */
 function AppContent(): JSX.Element {
-  const { currentUser, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
-  if (!isAuthenticated || !currentUser) {
+  if (!isAuthenticated || !user) {
     return <LoginPage />;
   }
 
-  switch (currentUser.role) {
+  switch (user.role) {
     case 'volunteer':
       return (
         <VolunteerLayout>
@@ -93,7 +93,7 @@ function AppContent(): JSX.Element {
 }
 
 /**
- * Root App component with providers
+ * Main App component wrapped with providers
  */
 export default function App(): JSX.Element {
   return (
