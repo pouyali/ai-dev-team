@@ -1,134 +1,140 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Clock, MapPin, Check, X } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, XCircle, Play } from 'lucide-react';
+import { Request, User } from '../../types';
 import PriorityBadge from './PriorityBadge';
 import CategoryBadge from './CategoryBadge';
 
 interface RequestCardProps {
-  id: string;
-  title: string;
-  description: string;
-  requesterName: string;
-  requesterInitials?: string;
-  priority: 'low' | 'medium' | 'high';
-  category: string;
-  date: string;
-  time: string;
-  duration: string;
-  address: string;
+  request: Request;
+  requester?: User;
+  volunteer?: User;
   variant?: 'request' | 'scheduled';
-  seniorName?: string;
-  onAccept?: (id: string) => void;
-  onDecline?: (id: string) => void;
-  onStartTask?: (id: string) => void;
+  onAccept?: () => void;
+  onDecline?: () => void;
+  onStart?: () => void;
 }
 
 /**
  * Request card component matching the screenshot design
- * Supports both request view (with Accept/Decline) and scheduled view (with Start Task)
+ * Supports request view (with Accept/Decline) and scheduled view (with Start Task)
  */
 export default function RequestCard({
-  id,
-  title,
-  description,
-  requesterName,
-  requesterInitials,
-  priority,
-  category,
-  date,
-  time,
-  duration,
-  address,
+  request,
+  requester,
+  volunteer,
   variant = 'request',
-  seniorName,
   onAccept,
   onDecline,
-  onStartTask,
+  onStart
 }: RequestCardProps): JSX.Element {
   const getInitials = (name: string): string => {
     return name
       .split(' ')
-      .map((part) => part[0])
+      .map(part => part[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
   };
 
-  const initials = requesterInitials || getInitials(requesterName);
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const displayName = variant === 'scheduled' && volunteer 
+    ? volunteer.name 
+    : requester?.name || 'Unknown';
+
+  const displayLabel = variant === 'scheduled' 
+    ? `with ${displayName}` 
+    : `Requested by ${displayName}`;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-      {/* Header with avatar, title, badges */}
-      <div className="flex items-start gap-4">
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      {/* Header: Avatar, Title, and Badges */}
+      <div className="flex items-start space-x-4 mb-4">
         <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-          <span className="text-sm font-medium text-gray-600">{initials}</span>
+          <span className="text-sm font-medium text-gray-600">
+            {getInitials(displayName)}
+          </span>
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-500">
-            {variant === 'scheduled' && seniorName
-              ? `with ${seniorName}`
-              : `Requested by ${requesterName}`}
-          </p>
-          {variant === 'request' && (
-            <div className="flex items-center gap-2 mt-2">
-              <PriorityBadge priority={priority} />
-              <CategoryBadge category={category} />
-            </div>
-          )}
+          <h3 className="text-lg font-semibold text-gray-900 truncate">
+            {request.title}
+          </h3>
+          <p className="text-sm text-gray-500">{displayLabel}</p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <PriorityBadge priority={request.priority} />
+            <CategoryBadge category={request.category} />
+          </div>
         </div>
       </div>
 
       {/* Description */}
-      {variant === 'request' && (
-        <p className="text-sm text-gray-600">{description}</p>
-      )}
+      <p className="text-gray-600 mb-4">{request.description}</p>
 
-      {/* Details */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Calendar className="w-4 h-4 text-gray-400" />
-          <span>
-            {date} at {time}
-          </span>
+      {/* Details: Date, Duration, Location */}
+      <div className="space-y-2 mb-6">
+        <div className="flex items-center text-sm text-gray-700">
+          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+          <span>{formatDate(request.scheduledDate)} at {formatTime(request.scheduledDate)}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Clock className="w-4 h-4 text-gray-400" />
-          <span>{duration}</span>
+        <div className="flex items-center text-sm text-gray-700">
+          <Clock className="w-4 h-4 mr-2 text-gray-400" />
+          <span>{request.estimatedDuration}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <MapPin className="w-4 h-4 text-gray-400" />
-          <span>{address}</span>
+        <div className="flex items-center text-sm text-gray-700">
+          <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+          <span>{request.location.address}</span>
         </div>
       </div>
 
-      {/* Actions */}
-      {variant === 'request' && onAccept && onDecline && (
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            onClick={() => onAccept(id)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            <Check className="w-4 h-4" />
-            Accept
-          </button>
-          <button
-            onClick={() => onDecline(id)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
-          >
-            <X className="w-4 h-4" />
-            Decline
-          </button>
+      {/* Action Buttons */}
+      {variant === 'request' && (onAccept || onDecline) && (
+        <div className="flex space-x-3">
+          {onAccept && (
+            <button
+              onClick={onAccept}
+              className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Accept</span>
+            </button>
+          )}
+          {onDecline && (
+            <button
+              onClick={onDecline}
+              className="flex-1 flex items-center justify-center space-x-2 px-4 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              <XCircle className="w-4 h-4" />
+              <span>Decline</span>
+            </button>
+          )}
         </div>
       )}
 
-      {variant === 'scheduled' && onStartTask && (
+      {variant === 'scheduled' && onStart && (
         <button
-          onClick={() => onStartTask(id)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          onClick={onStart}
+          className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
         >
-          Start Task
+          <Play className="w-4 h-4" />
+          <span>Start Task</span>
         </button>
       )}
     </div>
