@@ -1,82 +1,94 @@
 'use client'
-
-import React from 'react'
-import { Home, Calendar, Bell, Star } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import NavTabs from '@/components/ui/NavTabs'
-
-function TopBar(): JSX.Element {
-  const { user, login, logout } = useAuth()
-  const router = useRouter()
-
-  function handleSwitch(role: 'volunteer' | 'senior' | 'admin'): void {
-    const roleToUserId: Record<string, string> = {
-      volunteer: '1',
-      senior: '2',
-      admin: '3',
-    }
-    const userId = roleToUserId[role]
-    if (userId) {
-      login(userId)
-      if (role === 'senior') {
-        router.push('/senior')
-      } else if (role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/volunteer')
-      }
-    }
-  }
-
-  return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-      <div>
-        <h1 className="text-base font-bold text-gray-900">Volunteer Portal</h1>
-        {user && (
-          <p className="text-xs text-gray-500">{user.name}</p>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <select
-          value={user?.role ?? 'volunteer'}
-          onChange={(e) => handleSwitch(e.target.value as 'volunteer' | 'senior' | 'admin')}
-          className="text-xs border border-gray-300 rounded-md px-2 py-1 bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-black"
-        >
-          <option value="volunteer">Volunteer</option>
-          <option value="senior">Senior</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button
-          onClick={() => { logout(); router.push('/login') }}
-          className="text-xs text-gray-500 hover:text-gray-800 transition-colors px-2 py-1 border border-gray-200 rounded-md"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  )
-}
+import { Home, Calendar, Bell, Star } from 'lucide-react'
 
 export default function VolunteerPortalLayout({
   children,
 }: {
   children: React.ReactNode
-}): JSX.Element {
-  const unreadCount = 0 // TODO: add getUnreadCount to DataContext when notifications are in context
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { user } = useAuth()
 
   const tabs = [
     { label: 'Requests', href: '/volunteer', icon: Home },
     { label: 'Schedule', href: '/volunteer/schedule', icon: Calendar },
-    { label: 'Notifications', href: '/volunteer/notifications', icon: Bell, badge: unreadCount },
+    { label: 'Notifications', href: '/volunteer/notifications', icon: Bell },
     { label: 'Reviews', href: '/volunteer/reviews', icon: Star },
   ]
 
+  const activeTab = tabs.find(t =>
+    t.href === '/volunteer'
+      ? pathname === '/volunteer'
+      : pathname === t.href || pathname.startsWith(t.href + '/')
+  )?.label ?? 'Requests'
+
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <TopBar />
-      <NavTabs tabs={tabs} />
-      <main className="max-w-2xl mx-auto px-4 py-6">{children}</main>
+    <div className="min-h-screen bg-white">
+      {/* Top bar */}
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center">
+              <span className="text-white text-xs font-bold">VC</span>
+            </div>
+            <div>
+              <div className="font-semibold text-gray-900 text-sm">VolunteerConnect</div>
+              <div className="text-xs text-gray-500">Volunteer Portal</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/senior')}
+              className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50"
+            >
+              Switch to Senior
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold">
+              {user?.name ? getInitials(user.name) : '?'}
+            </div>
+          </div>
+        </div>
+
+        {/* Nav tabs */}
+        <div className="px-6 pb-3">
+          <div className="flex bg-gray-100 rounded-xl p-1 w-fit gap-1">
+            {tabs.map(tab => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.label
+              return (
+                <button
+                  key={tab.label}
+                  onClick={() => router.push(tab.href)}
+                  className={[
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700',
+                  ].join(' ')}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        {children}
+      </main>
     </div>
   )
 }
