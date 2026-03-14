@@ -11,16 +11,14 @@ interface LoadingSpinnerProps {
  * Loading spinner component with configurable size
  */
 export default function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps): JSX.Element {
-  const getSizeClass = (): string => {
+  const getSizeClass = () => {
     switch (size) {
       case 'sm':
         return 'w-4 h-4';
-      case 'md':
-        return 'w-8 h-8';
       case 'lg':
-        return 'w-12 h-12';
-      default:
         return 'w-8 h-8';
+      default:
+        return 'w-6 h-6';
     }
   };
 
