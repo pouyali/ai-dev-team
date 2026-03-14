@@ -77,7 +77,7 @@ export default function VolunteerReviews(): JSX.Element {
             />
           ))}
         </div>
-        <p className="text-3xl font-bold text-gray-900">{averageRating.toFixed(1)}</p>
+        <p className="text-3xl font-bold text-gray-900">{averageRating.toFixed(1)} average</p>
         <p className="text-sm text-gray-500 mt-1">
           {myReviews.length} {myReviews.length === 1 ? 'review' : 'reviews'}
         </p>
