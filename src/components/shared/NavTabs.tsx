@@ -1,56 +1,52 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 
 interface Tab {
+  id: string;
   label: string;
+  href: string;
   icon?: LucideIcon;
   badge?: number;
 }
 
 interface NavTabsProps {
   tabs: Tab[];
-  active: string;
-  onChange: (label: string) => void;
+  activeTab: string;
 }
 
 /**
- * Horizontal navigation tabs component with pill-style active state
- * Supports icons and notification badges (only shown when badge > 0)
+ * NavTabs component - horizontal navigation tabs
  */
-export default function NavTabs({ tabs, active, onChange }: NavTabsProps): JSX.Element {
+export default function NavTabs({ tabs, activeTab }: NavTabsProps): JSX.Element {
   return (
-    <nav className="bg-gray-100 px-4 py-2">
-      <div className="flex items-center gap-2">
-        {tabs.map((tab) => {
-          const isActive = active === tab.label;
-          const Icon = tab.icon;
-          const showBadge = tab.badge !== undefined && tab.badge > 0;
+    <div className="flex">
+      {tabs.map(tab => {
+        const isActive = tab.id === activeTab;
+        const Icon = tab.icon;
 
-          return (
-            <button
-              key={tab.label}
-              onClick={() => onChange(tab.label)}
-              className={`
-                flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all
-                ${isActive
-                  ? 'bg-white shadow-sm text-gray-900'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }
-              `}
-            >
-              {Icon && <Icon className="w-4 h-4" />}
-              <span>{tab.label}</span>
-              {showBadge && (
-                <span className="ml-1 px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded-full">
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
-    </nav>
+        return (
+          <Link
+            key={tab.id}
+            href={tab.href}
+            className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+              isActive
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            {Icon && <Icon className="w-4 h-4" />}
+            <span>{tab.label}</span>
+            {tab.badge !== undefined && tab.badge > 0 && (
+              <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
+                {tab.badge}
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </div>
   );
 }
