@@ -6,43 +6,73 @@ export interface Request {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
   seniorId: string;
   volunteerId?: string;
-  createdAt: Date;
+  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  createdAt: string;
+  scheduledDate?: string;
 }
 
-interface DataContextType {
+export interface DataContextType {
   requests: Request[];
   addRequest: (request: Omit<Request, 'id' | 'createdAt'>) => void;
   updateRequest: (id: string, updates: Partial<Request>) => void;
+  deleteRequest: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const mockRequests: Request[] = [
+  {
+    id: '1',
+    title: 'Grocery Shopping Help',
+    description: 'Need help with weekly grocery shopping',
+    seniorId: '2',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: 'Doctor Appointment',
+    description: 'Need a ride to the doctor on Friday',
+    seniorId: '2',
+    volunteerId: '1',
+    status: 'accepted',
+    createdAt: new Date().toISOString(),
+    scheduledDate: '2024-01-15',
+  },
+];
+
 export function DataProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [requests, setRequests] = useState<Request[]>([]);
+  const [requests, setRequests] = useState<Request[]>(mockRequests);
 
   const addRequest = (request: Omit<Request, 'id' | 'createdAt'>) => {
     const newRequest: Request = {
       ...request,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date(),
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
     };
-    setRequests(prev => [...prev, newRequest]);
+    setRequests((prev) => [...prev, newRequest]);
   };
 
   const updateRequest = (id: string, updates: Partial<Request>) => {
-    setRequests(prev =>
-      prev.map(req => (req.id === id ? { ...req, ...updates } : req))
+    setRequests((prev) =>
+      prev.map((req) => (req.id === id ? { ...req, ...updates } : req))
     );
   };
 
-  return (
-    <DataContext.Provider value={{ requests, addRequest, updateRequest }}>
-      {children}
-    </DataContext.Provider>
-  );
+  const deleteRequest = (id: string) => {
+    setRequests((prev) => prev.filter((req) => req.id !== id));
+  };
+
+  const value: DataContextType = {
+    requests,
+    addRequest,
+    updateRequest,
+    deleteRequest,
+  };
+
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 
 export function useData(): DataContextType {
