@@ -1,62 +1,140 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { X } from "lucide-react"
+'use client';
+
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import { X } from 'lucide-react';
+
+interface DialogContextType {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const DialogContext = React.createContext<DialogContextType | undefined>(undefined);
+
+function useDialog(): DialogContextType {
+  const context = React.useContext(DialogContext);
+  if (!context) {
+    throw new Error('Dialog components must be used within a Dialog');
+  }
+  return context;
+}
 
 interface DialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  children: React.ReactNode
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
 }
 
-function Dialog({ open, onOpenChange, children }: DialogProps) {
-  if (!open) return null
+function Dialog({ open: controlledOpen, onOpenChange, children }: DialogProps): JSX.Element {
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={() => onOpenChange(false)} />
-      <div className="relative z-50">{children}</div>
-    </div>
-  )
-}
-
-const DialogContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, children, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("bg-white rounded-2xl shadow-xl p-6 w-full max-w-lg mx-4", className)}
-      {...props}
-    >
+    <DialogContext.Provider value={{ open, setOpen }}>
       {children}
-    </div>
-  )
-)
-DialogContent.displayName = "DialogContent"
-
-function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mb-4", className)} {...props} />
+    </DialogContext.Provider>
+  );
 }
 
-function DialogTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn("text-lg font-semibold text-gray-900", className)} {...props} />
-}
+function DialogTrigger({ children, asChild }: { children: React.ReactNode; asChild?: boolean }): JSX.Element {
+  const { setOpen } = useDialog();
+  
+  if (asChild && React.isValidElement(children)) {
+    return React.cloneElement(children as React.ReactElement<{ onClick?: () => void }>, {
+      onClick: () => setOpen(true),
+    });
+  }
 
-function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("text-sm text-gray-500 mt-1", className)} {...props} />
-}
-
-function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mt-6 flex justify-end gap-3", className)} {...props} />
-}
-
-function DialogClose({ className, onClick, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button
-      className={cn("absolute top-4 right-4 p-1 rounded-md hover:bg-gray-100", className)}
-      onClick={onClick}
-      {...props}
-    >
-      <X className="h-4 w-4 text-gray-500" />
+    <button onClick={() => setOpen(true)}>
+      {children}
     </button>
-  )
+  );
 }
 
-export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose }
+function DialogPortal({ children }: { children: React.ReactNode }): JSX.Element | null {
+  const { open } = useDialog();
+  
+  if (!open) return null;
+
+  return <>{children}</>;
+}
+
+function DialogOverlay({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+  const { setOpen } = useDialog();
+  
+  return (
+    <div
+      className={cn(
+        'fixed inset-0 z-50 bg-black/50 backdrop-blur-sm',
+        className
+      )}
+      onClick={() => setOpen(false)}
+      {...props}
+    />
+  );
+}
+
+function DialogContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+  const { open, setOpen } = useDialog();
+
+  if (!open) return <></>;
+
+  return (
+    <>
+      <DialogOverlay />
+      <div
+        className={cn(
+          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg rounded-lg',
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <button
+          className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+          onClick={() => setOpen(false)}
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    </>
+  );
+}
+
+function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+  return (
+    <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
+  );
+}
+
+function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+  return (
+    <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
+  );
+}
+
+function DialogTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>): JSX.Element {
+  return (
+    <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)} {...props} />
+  );
+}
+
+function DialogDescription({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>): JSX.Element {
+  return (
+    <p className={cn('text-sm text-gray-500', className)} {...props} />
+  );
+}
+
+export {
+  Dialog,
+  DialogTrigger,
+  DialogPortal,
+  DialogOverlay,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+};
