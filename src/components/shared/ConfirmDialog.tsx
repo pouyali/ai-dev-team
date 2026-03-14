@@ -6,51 +6,32 @@ import { AlertTriangle, X } from 'lucide-react';
 interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  description: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: 'danger' | 'warning' | 'default';
+  variant?: 'default' | 'danger';
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 /**
- * Confirmation dialog component using shadcn AlertDialog pattern
- * Supports danger, warning, and default variants
+ * Confirmation dialog component using alert dialog pattern
  */
 export default function ConfirmDialog({
   isOpen,
   title,
-  message,
+  description,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   variant = 'default',
   onConfirm,
-  onCancel,
+  onCancel
 }: ConfirmDialogProps): JSX.Element | null {
   if (!isOpen) return null;
 
-  const getConfirmButtonStyles = (): string => {
-    switch (variant) {
-      case 'danger':
-        return 'bg-red-600 text-white hover:bg-red-700';
-      case 'warning':
-        return 'bg-yellow-600 text-white hover:bg-yellow-700';
-      default:
-        return 'bg-gray-900 text-white hover:bg-gray-800';
-    }
-  };
-
-  const getIconStyles = (): string => {
-    switch (variant) {
-      case 'danger':
-        return 'text-red-600 bg-red-100';
-      case 'warning':
-        return 'text-yellow-600 bg-yellow-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
+  const confirmButtonStyles = variant === 'danger'
+    ? 'bg-red-600 hover:bg-red-700 text-white'
+    : 'bg-gray-900 hover:bg-gray-800 text-white';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -70,27 +51,27 @@ export default function ConfirmDialog({
         </button>
 
         <div className="flex items-start gap-4">
-          {variant !== 'default' && (
-            <div className={`p-2 rounded-full ${getIconStyles()}`}>
-              <AlertTriangle className="w-5 h-5" />
+          {variant === 'danger' && (
+            <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
           )}
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <p className="mt-2 text-sm text-gray-600">{message}</p>
+            <p className="mt-2 text-sm text-gray-600">{description}</p>
           </div>
         </div>
 
         <div className="flex gap-3 mt-6">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${getConfirmButtonStyles()}`}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${confirmButtonStyles}`}
           >
             {confirmLabel}
           </button>
