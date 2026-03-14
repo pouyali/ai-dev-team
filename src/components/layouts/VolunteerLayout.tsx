@@ -11,6 +11,13 @@ interface VolunteerLayoutProps {
   children: React.ReactNode;
 }
 
+const TABS = [
+  { label: 'Requests', icon: Home },
+  { label: 'Schedule', icon: Calendar },
+  { label: 'Notifications', icon: Bell },
+  { label: 'Reviews', icon: Star }
+];
+
 /**
  * Layout component for the volunteer portal
  * Includes TopBar with switch to senior, and navigation tabs
@@ -20,16 +27,15 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
   const { notifications } = useData();
   const [activeTab, setActiveTab] = useState('Requests');
 
-  const unreadCount = notifications.filter(
+  const unreadCount = (notifications ?? []).filter(
     n => n.userId === currentUser?.id && !n.read
   ).length;
 
-  const tabs = [
-    { label: 'Requests', icon: Home },
-    { label: 'Schedule', icon: Calendar },
-    { label: 'Notifications', icon: Bell, badge: unreadCount },
-    { label: 'Reviews', icon: Star }
-  ];
+  const tabs = TABS.map(tab => 
+    tab.label === 'Notifications' 
+      ? { ...tab, badge: unreadCount }
+      : tab
+  );
 
   const handleSwitch = (): void => {
     switchRole('senior');
