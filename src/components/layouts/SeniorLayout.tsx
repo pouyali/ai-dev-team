@@ -10,6 +10,13 @@ interface SeniorLayoutProps {
   children: React.ReactNode;
 }
 
+const TABS = [
+  { label: 'Dashboard', icon: LayoutDashboard },
+  { label: 'Create Request', icon: PlusCircle },
+  { label: 'My Requests', icon: ClipboardList },
+  { label: 'Profile', icon: User }
+];
+
 /**
  * Layout component for the senior portal
  * Includes TopBar with switch to volunteer, and navigation tabs
@@ -17,13 +24,6 @@ interface SeniorLayoutProps {
 export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Element {
   const { switchRole } = useAuth();
   const [activeTab, setActiveTab] = useState('Dashboard');
-
-  const tabs = [
-    { label: 'Dashboard', icon: LayoutDashboard },
-    { label: 'Create Request', icon: PlusCircle },
-    { label: 'My Requests', icon: ClipboardList },
-    { label: 'Profile', icon: User }
-  ];
 
   const handleSwitch = (): void => {
     switchRole('volunteer');
@@ -37,7 +37,7 @@ export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Eleme
         onSwitch={handleSwitch}
       />
       <NavTabs
-        tabs={tabs}
+        tabs={TABS}
         active={activeTab}
         onChange={setActiveTab}
       />
