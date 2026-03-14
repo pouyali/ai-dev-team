@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Home, Calendar, Bell, Star } from 'lucide-react';
 import TopBar from '../shared/TopBar';
 import NavTabs from '../shared/NavTabs';
@@ -15,24 +15,22 @@ const VOLUNTEER_TABS = [
   { label: 'Requests', icon: Home },
   { label: 'Schedule', icon: Calendar },
   { label: 'Notifications', icon: Bell, badge: 0 },
-  { label: 'Reviews', icon: Star }
+  { label: 'Reviews', icon: Star },
 ];
 
 /**
- * Layout component for the Volunteer Portal
+ * Layout component for the volunteer portal
  * Includes TopBar, NavTabs, and main content area
  */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
-  const { switchRole, currentUser } = useAuth();
-  const { notifications } = useData();
   const [activeTab, setActiveTab] = useState('Requests');
+  const { switchRole } = useAuth();
+  const { notifications } = useData();
 
-  // Calculate unread notifications count
-  const unreadCount = notifications.filter(
-    n => !n.read && n.userId === currentUser?.id
-  ).length;
+  // Calculate unread notification count
+  const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Update tabs with notification badge
+  // Update tabs with dynamic notification badge
   const tabsWithBadge = VOLUNTEER_TABS.map(tab => {
     if (tab.label === 'Notifications') {
       return { ...tab, badge: unreadCount };
@@ -40,17 +38,8 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
     return tab;
   });
 
-  const handleSwitch = () => {
+  const handleSwitch = (): void => {
     switchRole('senior');
-  };
-
-  const handleTabChange = (label: string) => {
-    setActiveTab(label);
-    // Update URL without page reload for client-side navigation
-    if (typeof window !== 'undefined') {
-      const path = `/volunteer/${label.toLowerCase().replace(/\s+/g, '-')}`;
-      window.history.pushState({}, '', path);
-    }
   };
 
   return (
@@ -63,9 +52,9 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
       <NavTabs
         tabs={tabsWithBadge}
         active={activeTab}
-        onChange={handleTabChange}
+        onChange={setActiveTab}
       />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="p-6">
         {children}
       </main>
     </div>
