@@ -1,11 +1,26 @@
+/**
+ * User roles in the system
+ */
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
+/**
+ * Request priority levels
+ */
 export type Priority = 'low' | 'medium' | 'high';
 
-export type Category = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Home Help' | 'Medical' | 'Other';
+/**
+ * Request categories
+ */
+export type Category = 'shopping' | 'transportation' | 'technology' | 'companionship' | 'household' | 'other';
 
+/**
+ * Request status values
+ */
 export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'rejected';
 
+/**
+ * User interface
+ */
 export interface User {
   id: string;
   name: string;
@@ -14,11 +29,12 @@ export interface User {
   phone?: string;
   address?: string;
   avatar?: string;
-  rating?: number;
-  totalReviews?: number;
-  createdAt: string;
+  createdAt: Date;
 }
 
+/**
+ * Request interface
+ */
 export interface Request {
   id: string;
   title: string;
@@ -29,14 +45,28 @@ export interface Request {
   seniorId: string;
   volunteerId?: string;
   location: string;
-  scheduledDate: string;
+  scheduledDate: Date;
   estimatedDuration: string;
-  createdAt: string;
-  updatedAt: string;
-  completedAt?: string;
-  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
+/**
+ * Notification interface
+ */
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  read: boolean;
+  createdAt: Date;
+}
+
+/**
+ * Review interface
+ */
 export interface Review {
   id: string;
   requestId: string;
@@ -44,16 +74,5 @@ export interface Review {
   revieweeId: string;
   rating: number;
   comment: string;
-  createdAt: string;
-}
-
-export interface Notification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
-  type: 'request' | 'review' | 'system' | 'reminder';
-  read: boolean;
-  createdAt: string;
-  relatedId?: string;
+  createdAt: Date;
 }
