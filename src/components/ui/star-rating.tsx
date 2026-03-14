@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,13 +12,17 @@ interface StarRatingProps {
   className?: string;
 }
 
-function StarRating({ value, onChange, readonly = false, size = 'md', className }: StarRatingProps): JSX.Element {
-  const [hoverValue, setHoverValue] = React.useState(0);
-
+export function StarRating({
+  value,
+  onChange,
+  readonly = false,
+  size = 'md',
+  className,
+}: StarRatingProps): JSX.Element {
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-6 w-6',
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6',
   };
 
   const handleClick = (rating: number): void => {
@@ -27,45 +31,30 @@ function StarRating({ value, onChange, readonly = false, size = 'md', className 
     }
   };
 
-  const handleMouseEnter = (rating: number): void => {
-    if (!readonly) {
-      setHoverValue(rating);
-    }
-  };
-
-  const handleMouseLeave = (): void => {
-    setHoverValue(0);
-  };
-
   return (
     <div className={cn('flex gap-1', className)}>
-      {[1, 2, 3, 4, 5].map(rating => {
-        const filled = rating <= (hoverValue || value);
-        return (
-          <button
-            key={rating}
-            type="button"
-            onClick={() => handleClick(rating)}
-            onMouseEnter={() => handleMouseEnter(rating)}
-            onMouseLeave={handleMouseLeave}
-            disabled={readonly}
+      {[1, 2, 3, 4, 5].map(star => (
+        <button
+          key={star}
+          type="button"
+          onClick={() => handleClick(star)}
+          disabled={readonly}
+          className={cn(
+            'transition-colors',
+            !readonly && 'cursor-pointer hover:scale-110',
+            readonly && 'cursor-default'
+          )}
+        >
+          <Star
             className={cn(
-              'transition-colors',
-              !readonly && 'cursor-pointer hover:scale-110',
-              readonly && 'cursor-default'
+              sizeClasses[size],
+              star <= value
+                ? 'text-yellow-400 fill-yellow-400'
+                : 'text-gray-300'
             )}
-          >
-            <Star
-              className={cn(
-                sizeClasses[size],
-                filled ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-              )}
-            />
-          </button>
-        );
-      })}
+          />
+        </button>
+      ))}
     </div>
   );
 }
-
-export { StarRating };
