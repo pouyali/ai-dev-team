@@ -1,31 +1,6 @@
-/**
- * User roles in the system
- */
+// User types
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
-/**
- * Request status values
- */
-export type RequestStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'rejected' | 'cancelled';
-
-/**
- * Priority levels for requests
- */
-export type Priority = 'low' | 'medium' | 'high';
-
-/**
- * Categories for help requests
- */
-export type Category = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Household' | 'Medical' | 'Other';
-
-/**
- * Notification types
- */
-export type NotificationType = 'request_accepted' | 'request_completed' | 'new_review' | 'request_cancelled' | 'reminder';
-
-/**
- * User interface
- */
 export interface User {
   id: string;
   name: string;
@@ -33,35 +8,46 @@ export interface User {
   role: UserRole;
   phone?: string;
   address?: string;
-  bio?: string;
   avatar?: string;
+  bio?: string;
   createdAt: string;
 }
 
-/**
- * Help request interface
- */
-export interface HelpRequest {
+// Request types
+export type Priority = 'low' | 'medium' | 'high';
+export type Category = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Home Help' | 'Medical' | 'Other';
+export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
+
+export interface Location {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface Request {
   id: string;
-  seniorId: string;
-  volunteerId?: string;
   title: string;
   description: string;
   category: Category;
   priority: Priority;
   status: RequestStatus;
+  seniorId: string;
+  volunteerId?: string;
+  location: Location;
   scheduledDate: string;
-  scheduledTime: string;
-  duration: string;
-  address: string;
-  notes?: string;
+  estimatedDuration: string;
   createdAt: string;
   updatedAt: string;
+  completedAt?: string;
+  notes?: string;
 }
 
-/**
- * Review interface
- */
+// Review types
 export interface Review {
   id: string;
   requestId: string;
@@ -72,9 +58,9 @@ export interface Review {
   createdAt: string;
 }
 
-/**
- * Notification interface
- */
+// Notification types
+export type NotificationType = 'request_new' | 'request_accepted' | 'request_completed' | 'review_received' | 'reminder' | 'system';
+
 export interface Notification {
   id: string;
   userId: string;
@@ -82,6 +68,6 @@ export interface Notification {
   title: string;
   message: string;
   read: boolean;
-  relatedRequestId?: string;
   createdAt: string;
+  relatedId?: string;
 }
