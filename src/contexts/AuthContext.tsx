@@ -1,77 +1,66 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { User, UserRole } from '@/types';
 
-export type UserRole = 'volunteer' | 'senior' | 'admin';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
-  phone?: string;
-}
-
-export interface AuthContextType {
+interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (userId: string) => void;
+  login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
+  switchRole: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for development
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Alice Volunteer',
-    email: 'volunteer@example.com',
+const mockUsers: Record<UserRole, User> = {
+  volunteer: {
+    id: 'v1',
+    name: 'Sarah Thompson',
+    email: 'sarah@example.com',
     role: 'volunteer',
-    avatar: '/avatars/alice.jpg',
     phone: '555-0101',
   },
-  {
-    id: '2',
-    name: 'Bob Senior',
-    email: 'senior@example.com',
+  senior: {
+    id: 's1',
+    name: 'Margaret Smith',
+    email: 'margaret@example.com',
     role: 'senior',
-    avatar: '/avatars/bob.jpg',
     phone: '555-0102',
   },
-  {
-    id: '3',
-    name: 'Carol Admin',
+  admin: {
+    id: 'a1',
+    name: 'Admin User',
     email: 'admin@example.com',
     role: 'admin',
-    avatar: '/avatars/carol.jpg',
-    phone: '555-0103',
+    phone: '555-0100',
   },
-];
+};
 
 export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(mockUsers.volunteer);
 
-  const login = useCallback((userId: string) => {
-    const foundUser = mockUsers.find((u) => u.id === userId);
-    if (foundUser) {
-      setUser(foundUser);
-    }
+  const isAuthenticated = user !== null;
+
+  const login = useCallback(async (email: string, password: string, role: UserRole): Promise<void> => {
+    // Mock login - in real app would validate credentials
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setUser(mockUsers[role]);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback((): void => {
     setUser(null);
   }, []);
 
-  const value: AuthContextType = {
-    user,
-    isAuthenticated: user !== null,
-    login,
-    logout,
-  };
+  const switchRole = useCallback((role: UserRole): void => {
+    setUser(mockUsers[role]);
+  }, []);
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, switchRole }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth(): AuthContextType {
@@ -81,6 +70,3 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
-
-// Export mock users for use in login page
-export { mockUsers };
