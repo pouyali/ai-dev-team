@@ -1,7 +1,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { DataProvider } from '@/contexts/DataContext';
 import { ToastProvider } from '@/components/shared/ToastContainer';
@@ -17,7 +17,8 @@ interface VolunteerLayoutProps {
  */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
   const pathname = usePathname();
-  const { user, logout, switchRole } = useAuth();
+  const router = useRouter();
+  const { user, switchRole } = useAuth();
 
   const tabs = [
     { id: 'requests', label: 'Requests', href: '/volunteer', icon: Home },
@@ -37,6 +38,7 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
 
   const handleSwitchRole = (): void => {
     switchRole('senior');
+    router.push('/senior');
   };
 
   const getInitials = (name: string): string => {
