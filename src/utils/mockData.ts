@@ -1,6 +1,31 @@
-import { User, Review, Notification } from '../types';
+// Mock data for the application
+// Note: these types extend the base types with app-specific fields
 
-/** Mock request shape (used by mock data; differs from HelpRequest) */
+export type UserRole = 'volunteer' | 'senior' | 'admin';
+
+export interface MockUser {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  phone?: string;
+  address?: string;
+  rating?: number;
+  totalReviews?: number;
+  joinedDate: string;
+  stats?: {
+    completedRequests?: number;
+    activeRequests?: number;
+    totalRequests?: number;
+  };
+}
+
+export interface MockLocation {
+  address: string;
+  lat: number;
+  lng: number;
+}
+
 export interface MockRequest {
   id: string;
   title: string;
@@ -9,273 +34,182 @@ export interface MockRequest {
   seniorName: string;
   volunteerId?: string;
   volunteerName?: string;
-  status: string;
-  location: { address: string; lat: number; lng: number };
+  status: 'pending' | 'accepted' | 'started' | 'in-progress' | 'completed' | 'cancelled';
+  location: MockLocation;
   scheduledDate: string;
   scheduledTime: string;
   duration: string;
   createdAt: string;
   acceptedAt?: string;
-  startedAt?: string;
-  completedAt?: string;
-  category: string;
-  urgency: string;
+  category: 'groceries' | 'medical' | 'other' | string;
+  urgency: 'low' | 'medium' | 'high';
 }
 
-/** Mock location tracking shape */
-export interface MockLocationTracking {
+export interface MockReview {
+  id: string;
   requestId: string;
-  volunteerId: string;
-  currentLocation: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
-  lastUpdated: string;
-  isActive: boolean;
+  reviewerId: string;
+  reviewerName: string;
+  reviewerRole: UserRole;
+  revieweeId: string;
+  revieweeName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }
 
-/**
- * Mock users data including volunteers, seniors, and admin
- */
-export const mockUsers: User[] = [
-  // Volunteers
+export interface MockNotification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export const mockUsers: MockUser[] = [
   {
-    id: 'vol-1',
+    id: 'user-st',
     name: 'Sarah Thompson',
-    email: 'sarah.thompson@email.com',
+    email: 'sarah@example.com',
     role: 'volunteer',
-    phone: '(555) 123-4567',
-    location: { address: '123 Main Street', city: 'Springfield', state: 'IL', zipCode: '62701' },
-    createdAt: '2024-06-15',
+    phone: '555-0201',
     rating: 4.8,
-    totalReviews: 24,
+    totalReviews: 12,
+    joinedDate: '2024-01-15',
+    stats: { completedRequests: 23, activeRequests: 1 },
   },
   {
-    id: 'vol-2',
-    name: 'Michael Chen',
-    email: 'michael.chen@email.com',
+    id: 'user-jw',
+    name: 'James Wilson',
+    email: 'james@example.com',
     role: 'volunteer',
-    phone: '(555) 234-5678',
-    location: { address: '456 Oak Lane', city: 'Springfield', state: 'IL', zipCode: '62702' },
-    createdAt: '2024-03-20',
-    rating: 4.9,
-    totalReviews: 31,
+    phone: '555-0202',
+    rating: 4.5,
+    totalReviews: 8,
+    joinedDate: '2024-02-14',
+    stats: { completedRequests: 15, activeRequests: 0 },
   },
   {
-    id: 'vol-3',
-    name: 'Emily Rodriguez',
-    email: 'emily.rodriguez@email.com',
-    role: 'volunteer',
-    phone: '(555) 345-6789',
-    location: { address: '789 Pine Road', city: 'Springfield', state: 'IL', zipCode: '62703' },
-    createdAt: '2024-08-10',
-    rating: 4.7,
-    totalReviews: 18,
-  },
-  // Seniors
-  {
-    id: 'sen-1',
+    id: 'user-ms',
     name: 'Margaret Smith',
-    email: 'margaret.smith@email.com',
+    email: 'margaret@example.com',
     role: 'senior',
-    phone: '(555) 456-7890',
-    location: { address: '456 Oak Avenue', city: 'Springfield', state: 'IL', zipCode: '62704' },
-    createdAt: '2024-05-01',
+    phone: '555-0101',
+    address: '456 Oak Avenue, Springfield',
+    joinedDate: '2024-02-20',
+    stats: { totalRequests: 8, activeRequests: 2 },
   },
   {
-    id: 'sen-2',
+    id: 'user-rj',
     name: 'Robert Johnson',
-    email: 'robert.johnson@email.com',
+    email: 'robert@example.com',
     role: 'senior',
-    phone: '(555) 567-8901',
-    location: { address: '789 Medical Center Dr', city: 'Springfield', state: 'IL', zipCode: '62705' },
-    createdAt: '2024-04-15',
+    phone: '555-0102',
+    address: '789 Medical Center Dr, Springfield',
+    joinedDate: '2024-03-10',
+    stats: { totalRequests: 5, activeRequests: 1 },
   },
   {
-    id: 'sen-3',
+    id: 'user-dw',
     name: 'Dorothy Williams',
-    email: 'dorothy.williams@email.com',
+    email: 'dorothy@example.com',
     role: 'senior',
-    phone: '(555) 678-9012',
-    location: { address: '321 Elm Street', city: 'Springfield', state: 'IL', zipCode: '62706' },
-    createdAt: '2024-07-20',
+    phone: '555-0103',
+    address: '321 Elm Street, Springfield',
+    joinedDate: '2024-01-28',
+    stats: { totalRequests: 6, activeRequests: 1 },
   },
-  // Admin
   {
-    id: 'admin-1',
+    id: 'user-ad',
     name: 'Admin User',
-    email: 'admin@volunteerconnect.com',
+    email: 'admin@example.com',
     role: 'admin',
-    phone: '(555) 999-0000',
-    location: { address: '1 Admin Plaza', city: 'Springfield', state: 'IL', zipCode: '62700' },
-    createdAt: '2024-01-01',
+    joinedDate: '2024-01-01',
   },
 ];
 
-/**
- * Mock requests data
- */
 export const mockRequests: MockRequest[] = [
   {
     id: 'req-1',
     title: 'Help with grocery shopping',
-    description: 'I need help picking up groceries from the local supermarket. I have a list of items ready and would appreciate someone to help carry the bags.',
-    seniorId: 'sen-1',
+    description: 'Need assistance picking up groceries from the local supermarket. I have a list ready.',
+    seniorId: 'user-ms',
     seniorName: 'Margaret Smith',
     status: 'pending',
-    location: {
-      address: '456 Oak Avenue, Springfield',
-      lat: 40.7128,
-      lng: -74.006,
-    },
+    location: { address: '456 Oak Avenue, Springfield', lat: 40.7128, lng: -74.0060 },
     scheduledDate: '2025-11-09',
-    scheduledTime: '10:00 AM',
+    scheduledTime: '10:00',
     duration: '1-2 hours',
-    createdAt: '2025-11-01T10:00:00Z',
-    category: 'shopping',
+    createdAt: new Date().toISOString(),
+    category: 'groceries',
     urgency: 'medium',
   },
   {
     id: 'req-2',
     title: 'Ride to medical appointment',
-    description: 'I have a doctor\'s appointment and need transportation to and from the medical center. The appointment should last about an hour.',
-    seniorId: 'sen-2',
+    description: "I need a ride to my doctor's appointment. Round trip needed.",
+    seniorId: 'user-rj',
     seniorName: 'Robert Johnson',
     status: 'pending',
-    location: {
-      address: '789 Medical Center Dr, Springfield',
-      lat: 40.758,
-      lng: -73.9855,
-    },
+    location: { address: '789 Medical Center Dr, Springfield', lat: 40.7580, lng: -73.9855 },
     scheduledDate: '2025-11-10',
-    scheduledTime: '2:00 PM',
+    scheduledTime: '14:00',
     duration: '2-3 hours',
-    createdAt: '2025-11-02T14:00:00Z',
-    category: 'transportation',
+    createdAt: new Date().toISOString(),
+    category: 'medical',
     urgency: 'high',
   },
   {
     id: 'req-3',
     title: 'Help setting up new phone',
-    description: 'I just got a new smartphone and need help setting it up, transferring contacts, and learning how to use the basic features.',
-    seniorId: 'sen-3',
+    description: 'Got a new smartphone and need help setting it up and transferring data.',
+    seniorId: 'user-dw',
     seniorName: 'Dorothy Williams',
-    volunteerId: 'vol-1',
+    volunteerId: 'user-st',
     volunteerName: 'Sarah Thompson',
     status: 'accepted',
-    location: {
-      address: '321 Elm Street, Springfield',
-      lat: 40.7489,
-      lng: -73.968,
-    },
+    location: { address: '321 Elm Street, Springfield', lat: 40.7489, lng: -73.9680 },
     scheduledDate: '2025-11-11',
-    scheduledTime: '11:00 AM',
+    scheduledTime: '11:00',
     duration: '1 hour',
-    createdAt: '2025-11-03T09:00:00Z',
-    acceptedAt: '2025-11-03T12:00:00Z',
-    category: 'technology',
+    createdAt: new Date().toISOString(),
+    acceptedAt: new Date().toISOString(),
+    category: 'other',
     urgency: 'medium',
   },
-  {
-    id: 'req-4',
-    title: 'Light bulb replacement',
-    description: 'Several light bulbs in my home need replacing. I have the bulbs but cannot reach the fixtures safely.',
-    seniorId: 'sen-1',
-    seniorName: 'Margaret Smith',
-    volunteerId: 'vol-2',
-    volunteerName: 'Michael Chen',
-    status: 'completed',
-    location: {
-      address: '456 Oak Avenue, Springfield',
-      lat: 40.7128,
-      lng: -74.006,
-    },
-    scheduledDate: '2025-10-25',
-    scheduledTime: '3:00 PM',
-    duration: '1 hour',
-    createdAt: '2025-10-20T10:00:00Z',
-    acceptedAt: '2025-10-21T08:00:00Z',
-    startedAt: '2025-10-25T15:00:00Z',
-    completedAt: '2025-10-25T16:00:00Z',
-    category: 'home-repair',
-    urgency: 'low',
-  },
 ];
 
-/**
- * Mock reviews data
- */
-export const mockReviews: Review[] = [
+export const mockReviews: MockReview[] = [
   {
     id: 'rev-1',
-    requestId: 'req-4',
-    reviewerId: 'sen-1',
-    revieweeId: 'vol-2',
+    requestId: 'req-3',
+    reviewerId: 'user-dw',
+    reviewerName: 'Dorothy Williams',
+    reviewerRole: 'senior',
+    revieweeId: 'user-st',
+    revieweeName: 'Sarah Thompson',
     rating: 5,
-    comment: 'Michael was wonderful! He replaced all the bulbs quickly and even checked if any others needed replacing. Very kind and helpful.',
-    createdAt: '2025-10-25T17:00:00Z',
-  },
-  {
-    id: 'rev-2',
-    requestId: 'req-4',
-    reviewerId: 'vol-2',
-    revieweeId: 'sen-1',
-    rating: 5,
-    comment: 'Margaret was very welcoming and had everything ready for me. A pleasure to help!',
-    createdAt: '2025-10-25T17:30:00Z',
+    comment: 'Sarah was incredibly helpful and patient. Highly recommend!',
+    createdAt: new Date().toISOString(),
   },
 ];
 
-/**
- * Mock notifications data
- */
-export const mockNotifications: Notification[] = [
+export const mockNotifications: MockNotification[] = [
   {
     id: 'notif-1',
-    userId: 'vol-1',
-    title: 'New Request Available',
-    message: 'Margaret Smith needs help with grocery shopping in your area.',
-    type: 'request',
+    userId: 'user-st',
+    title: 'New request available',
+    message: 'Margaret Smith needs help with grocery shopping',
     read: false,
-    createdAt: '2025-11-01T10:05:00Z',
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'notif-2',
-    userId: 'vol-1',
-    title: 'Request Accepted',
-    message: 'Your acceptance for "Help setting up new phone" has been confirmed.',
-    type: 'request',
+    userId: 'user-st',
+    title: 'Reminder',
+    message: 'You have a task scheduled tomorrow with Dorothy Williams',
     read: false,
-    createdAt: '2025-11-03T12:05:00Z',
-  },
-  {
-    id: 'notif-3',
-    userId: 'sen-1',
-    title: 'Volunteer Assigned',
-    message: 'Sarah Thompson has accepted your request for phone setup help.',
-    type: 'request',
-    read: true,
-    createdAt: '2025-11-03T12:05:00Z',
-  },
-  {
-    id: 'notif-4',
-    userId: 'sen-3',
-    title: 'Request Confirmed',
-    message: 'Your request "Help setting up new phone" has been accepted by Sarah Thompson.',
-    type: 'request',
-    read: true,
-    createdAt: '2025-11-03T12:05:00Z',
-  },
-];
-
-/**
- * Mock location tracking data
- */
-export const mockLocationTracking: MockLocationTracking[] = [
-  {
-    requestId: 'req-3',
-    volunteerId: 'vol-1',
-    currentLocation: { lat: 40.7128, lng: -74.006 },
-    destination: { lat: 40.7489, lng: -73.968 },
-    lastUpdated: '2025-11-11T10:45:00Z',
-    isActive: false,
+    createdAt: new Date().toISOString(),
   },
 ];
