@@ -1,18 +1,18 @@
 'use client';
 
 import React from 'react';
+import { Category } from '../../types';
 
 interface CategoryBadgeProps {
-  category: string;
+  category: Category;
 }
 
 /**
- * Category badge component with outlined style
- * Displays category name with border and gray text
+ * Category badge component with outlined styling
  */
 export default function CategoryBadge({ category }: CategoryBadgeProps): JSX.Element {
   return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-gray-300 text-gray-600 bg-white">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-gray-300 text-gray-600 bg-white">
       {category}
     </span>
   );
