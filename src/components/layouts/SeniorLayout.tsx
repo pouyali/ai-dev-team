@@ -1,47 +1,65 @@
 'use client';
 
-import React, { useState } from 'react';
-import { LayoutDashboard, Plus, FileText, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import TopBar from '../shared/TopBar';
-import NavTabs from '../shared/NavTabs';
+import React, { ReactNode } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../ui/button';
+import { Home, HelpCircle, User, LogOut } from 'lucide-react';
 
 interface SeniorLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const TABS = [
-  { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Create Request', icon: Plus },
-  { label: 'My Requests', icon: FileText },
-  { label: 'Profile', icon: User }
-];
-
-/**
- * Layout component for the senior portal
- * Includes TopBar with switch to volunteer, and navigation tabs
- */
 export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Element {
-  const { switchRole } = useAuth();
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const { user, logout } = useAuth();
 
-  const handleSwitch = (): void => {
-    switchRole('volunteer');
-  };
+  const navItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Home', active: true },
+    { icon: <HelpCircle className="w-5 h-5" />, label: 'My Requests', active: false },
+    { icon: <User className="w-5 h-5" />, label: 'Profile', active: false },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar
-        portalName="Senior Portal"
-        switchLabel="Switch to Volunteer"
-        onSwitch={handleSwitch}
-      />
-      <NavTabs
-        tabs={TABS}
-        active={activeTab}
-        onChange={setActiveTab}
-      />
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-gray-900">VolunteerConnect</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-4">
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  item.active
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {item.icon}
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
     </div>
