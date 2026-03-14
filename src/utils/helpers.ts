@@ -1,4 +1,4 @@
-import { RequestStatus, UrgencyLevel } from '../types';
+import { RequestStatus, Priority } from '../types';
 
 /**
  * Format a date string to a readable format
@@ -84,8 +84,8 @@ export function getStatusColor(status: RequestStatus): string {
  * @param urgency - Urgency level
  * @returns Tailwind CSS classes for the urgency badge
  */
-export function getUrgencyColor(urgency: UrgencyLevel): string {
-  const colors: Record<UrgencyLevel, string> = {
+export function getUrgencyColor(urgency: Priority): string {
+  const colors: Record<Priority, string> = {
     high: 'bg-red-600 text-white',
     medium: 'bg-gray-900 text-white',
     low: 'bg-green-600 text-white',
