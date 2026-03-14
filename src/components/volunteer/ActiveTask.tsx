@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { MapPin, Clock, ArrowLeft } from 'lucide-react';
+import type { LatLngExpression } from 'leaflet';
 
 // Dynamically import react-leaflet components to avoid SSR issues
 const MapContainer = dynamic(
@@ -135,6 +136,10 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
 
   const centerLat = (volunteerPosition.lat + destination.lat) / 2;
   const centerLng = (volunteerPosition.lng + destination.lng) / 2;
+  const center: LatLngExpression = [centerLat, centerLng];
+  const volunteerPos: LatLngExpression = [volunteerPosition.lat, volunteerPosition.lng];
+  const destinationPos: LatLngExpression = [destination.lat, destination.lng];
+  const polylinePositions: LatLngExpression[] = [volunteerPos, destinationPos];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -142,7 +147,7 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
       <div className="h-[60vh] bg-gray-200 relative">
         {mapReady && typeof window !== 'undefined' && (
           <MapContainer
-            center={[centerLat, centerLng]}
+            center={center}
             zoom={13}
             style={{ height: '100%', width: '100%' }}
           >
@@ -151,15 +156,12 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             {/* Volunteer marker (blue) */}
-            <Marker position={[volunteerPosition.lat, volunteerPosition.lng]} />
+            <Marker position={volunteerPos} />
             {/* Senior marker (red) */}
-            <Marker position={[destination.lat, destination.lng]} />
+            <Marker position={destinationPos} />
             {/* Polyline between markers */}
             <Polyline
-              positions={[
-                [volunteerPosition.lat, volunteerPosition.lng],
-                [destination.lat, destination.lng],
-              ]}
+              positions={polylinePositions}
               color="blue"
             />
           </MapContainer>
@@ -169,6 +171,7 @@ export default function ActiveTask({ requestId, onBack }: ActiveTaskProps): JSX.
         <button
           onClick={onBack}
           className="absolute top-4 left-4 z-[1000] bg-white rounded-full p-2 shadow-lg hover:bg-gray-50"
+          aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
