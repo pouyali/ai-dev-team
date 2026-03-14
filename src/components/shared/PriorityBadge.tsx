@@ -1,19 +1,18 @@
 'use client';
 
 import React from 'react';
-
-type Priority = 'low' | 'medium' | 'high';
+import { Priority } from '../../types';
 
 interface PriorityBadgeProps {
   priority: Priority;
 }
 
 /**
- * Priority badge component with color-coded backgrounds
- * high = red, medium = black, low = green
+ * Priority badge component with color-coded styling
+ * high: red, medium: black, low: green
  */
 export default function PriorityBadge({ priority }: PriorityBadgeProps): JSX.Element {
-  const getStyles = (): string => {
+  const getStyles = () => {
     switch (priority) {
       case 'high':
         return 'bg-red-500 text-white';
@@ -27,7 +26,7 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps): JSX.Ele
   };
 
   return (
-    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStyles()}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStyles()}`}>
       {priority} priority
     </span>
   );
