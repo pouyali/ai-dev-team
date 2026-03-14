@@ -18,6 +18,7 @@ export function Avatar({ src, alt, fallback, className, size = 40 }: AvatarProps
         className={cn("relative overflow-hidden rounded-full bg-gray-200", className)}
         style={{ width: size, height: size }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={src}
           alt={alt || fallback || "avatar"}
@@ -43,3 +44,11 @@ export function Avatar({ src, alt, fallback, className, size = 40 }: AvatarProps
     </div>
   )
 }
+
+// Backward-compatible exports for components that may import these
+export const AvatarImage = Avatar
+export const AvatarFallback = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+  <div className={cn("flex items-center justify-center", className)}>
+    {children}
+  </div>
+)
