@@ -11,32 +11,23 @@ interface VolunteerLayoutProps {
   children: React.ReactNode;
 }
 
-const VOLUNTEER_TABS = [
-  { label: 'Requests', icon: Home },
-  { label: 'Schedule', icon: Calendar },
-  { label: 'Notifications', icon: Bell, badge: 0 },
-  { label: 'Reviews', icon: Star },
-];
-
 /**
- * Layout component for the volunteer portal
- * Includes TopBar, NavTabs, and main content area
+ * Layout component for the Volunteer Portal
+ * Includes TopBar, NavTabs with Requests, Schedule, Notifications, Reviews
  */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
-  const [activeTab, setActiveTab] = useState('Requests');
   const { switchRole } = useAuth();
   const { notifications } = useData();
+  const [activeTab, setActiveTab] = useState('Requests');
 
-  // Calculate unread notification count
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // Update tabs with dynamic notification badge
-  const tabsWithBadge = VOLUNTEER_TABS.map(tab => {
-    if (tab.label === 'Notifications') {
-      return { ...tab, badge: unreadCount };
-    }
-    return tab;
-  });
+  const tabs = [
+    { label: 'Requests', icon: Home },
+    { label: 'Schedule', icon: Calendar },
+    { label: 'Notifications', icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
+    { label: 'Reviews', icon: Star }
+  ];
 
   const handleSwitch = (): void => {
     switchRole('senior');
@@ -50,11 +41,11 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
         onSwitch={handleSwitch}
       />
       <NavTabs
-        tabs={tabsWithBadge}
+        tabs={tabs}
         active={activeTab}
         onChange={setActiveTab}
       />
-      <main className="p-6">
+      <main className="px-6 py-6">
         {children}
       </main>
     </div>
