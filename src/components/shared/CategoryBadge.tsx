@@ -8,13 +8,16 @@ interface CategoryBadgeProps {
 }
 
 /**
- * Badge component for displaying request category
- * Outlined style with border and gray text
+ * Outlined badge component for displaying request categories
  */
 export default function CategoryBadge({ category }: CategoryBadgeProps): JSX.Element {
+  const formatCategory = (cat: Category): string => {
+    return cat.charAt(0).toUpperCase() + cat.slice(1);
+  };
+
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border border-gray-300 text-gray-600 bg-white">
-      {category}
+    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border border-gray-300 text-gray-600 bg-white">
+      {formatCategory(category)}
     </span>
   );
 }
