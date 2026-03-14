@@ -163,8 +163,10 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
     }
   }, [request?.location?.lat, request?.location?.lng])
 
+  // Use functional updater so volunteerPos is NOT needed in the dependency array.
+  // This prevents the interval from restarting every time volunteerPos changes.
   const moveCloser = useCallback(() => {
-    if (!request?.location || !volunteerPos) return
+    if (!request?.location) return
     setVolunteerPos((prev) => {
       if (!prev) return prev
       return {
@@ -172,7 +174,7 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
         lng: prev.lng + (request.location.lng - prev.lng) * 0.1,
       }
     })
-  }, [request?.location, volunteerPos])
+  }, [request?.location])
 
   useEffect(() => {
     const id = setInterval(moveCloser, 5000)
