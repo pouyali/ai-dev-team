@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useData } from '@/contexts/DataContext'
 import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin } from 'lucide-react'
+import { Location } from '@/types'
 
 const getInitials = (name: string) =>
   name
@@ -40,10 +41,9 @@ function isSameDay(a: Date, b: Date): boolean {
 function getDaysInMonthGrid(year: number, month: number): (Date | null)[] {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
-  const startDow = firstDay.getDay() // 0=Sun
+  const startDow = firstDay.getDay()
   const days: (Date | null)[] = []
 
-  // Pad start
   for (let i = 0; i < startDow; i++) {
     days.push(null)
   }
@@ -52,7 +52,6 @@ function getDaysInMonthGrid(year: number, month: number): (Date | null)[] {
     days.push(new Date(year, month, d))
   }
 
-  // Pad end to complete last row
   while (days.length % 7 !== 0) {
     days.push(null)
   }
@@ -87,7 +86,7 @@ export default function VolunteerSchedule() {
   const today = new Date()
 
   const selectedDayTasks = selectedDate
-    ? tasks.filter((t) => isSameDay(new Date(t.scheduledDate), selectedDate))
+    ? tasks.filter((t) => t.scheduledDate && isSameDay(new Date(t.scheduledDate), selectedDate))
     : []
 
   const handleStartTask = async (requestId: string) => {
@@ -142,15 +141,12 @@ export default function VolunteerSchedule() {
               return <div key={`empty-${idx}`} className="h-10" />
             }
 
-            const hasTask = tasks.some((t) =>
-              isSameDay(new Date(t.scheduledDate), day)
+            const tasksForDay = tasks.filter(
+              (t) => t.scheduledDate && isSameDay(new Date(t.scheduledDate), day)
             )
+            const hasTask = tasksForDay.length > 0
             const isToday = isSameDay(day, today)
             const isSelected = selectedDate ? isSameDay(day, selectedDate) : false
-
-            const tasksForDay = tasks.filter((t) =>
-              isSameDay(new Date(t.scheduledDate), day)
-            )
 
             return (
               <button
@@ -214,66 +210,71 @@ export default function VolunteerSchedule() {
             </div>
           ) : (
             <div className="space-y-4">
-              {selectedDayTasks.map((request) => (
-                <div
-                  key={request.id}
-                  className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm"
-                >
-                  {/* Header */}
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm flex-shrink-0">
-                      {getInitials(request.seniorName)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 text-base leading-tight">
-                        {request.title}
-                      </h3>
-                      <p className="text-gray-500 text-sm mt-0.5">with {request.seniorName}</p>
-                    </div>
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
-                        request.status === 'accepted'
-                          ? 'bg-blue-100 text-blue-700'
-                          : request.status === 'started'
-                          ? 'bg-purple-100 text-purple-700'
-                          : request.status === 'completed'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {request.status}
-                    </span>
-                  </div>
-
-                  {/* Details */}
-                  <div className="space-y-1.5 mb-5">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <span>
-                        {request.scheduledDate} at {request.scheduledTime}
+              {selectedDayTasks.map((request) => {
+                const location = request.location as Location | undefined
+                return (
+                  <div
+                    key={request.id}
+                    className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm flex-shrink-0">
+                        {getInitials(request.seniorName)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 text-base leading-tight">
+                          {request.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-0.5">with {request.seniorName}</p>
+                      </div>
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
+                          request.status === 'accepted'
+                            ? 'bg-blue-100 text-blue-700'
+                            : request.status === 'started'
+                            ? 'bg-purple-100 text-purple-700'
+                            : request.status === 'completed'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                        {request.status}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <span>{request.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      <span>{request.location?.address ?? request.location}</span>
-                    </div>
-                  </div>
 
-                  {/* Action */}
-                  {['accepted', 'started'].includes(request.status) && (
-                    <button
-                      onClick={() => handleStartTask(request.id)}
-                      className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
-                    >
-                      Start Task
-                    </button>
-                  )}
-                </div>
-              ))}
+                    {/* Details */}
+                    <div className="space-y-1.5 mb-5">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span>
+                          {request.scheduledDate} at {request.scheduledTime}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        <span>{request.duration}</span>
+                      </div>
+                      {location?.address && (
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span>{location.address}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action */}
+                    {['accepted', 'started'].includes(request.status) && (
+                      <button
+                        onClick={() => handleStartTask(request.id)}
+                        className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+                      >
+                        Start Task
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
