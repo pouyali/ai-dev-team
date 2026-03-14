@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Home,
   PlusCircle,
@@ -33,7 +33,13 @@ export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Eleme
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [notificationCount] = React.useState(1);
-  const [currentPath] = React.useState('/home');
+  
+  // Get current path from window.location for client-side routing
+  const [currentPath, setCurrentPath] = React.useState('/home');
+  
+  React.useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
 
   const navItems: NavItem[] = [
     { icon: <Home className="w-5 h-5" />, label: 'Home', href: '/home' },
