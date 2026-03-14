@@ -3,6 +3,8 @@
 import React from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import { Button } from './components/ui/button';
+import { Plus } from 'lucide-react';
 import LoginPage from './components/shared/LoginPage';
 import VolunteerLayout from './components/layouts/VolunteerLayout';
 import SeniorLayout from './components/layouts/SeniorLayout';
@@ -46,9 +48,10 @@ function AdminDashboard(): JSX.Element {
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">Manage all volunteer requests and users</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
-          + Create Request
-        </button>
+        <Button className="gap-2">
+          <Plus className="w-4 h-4" />
+          Create Request
+        </Button>
       </div>
       <p className="text-gray-500">Admin statistics and management tools will appear here.</p>
     </div>
