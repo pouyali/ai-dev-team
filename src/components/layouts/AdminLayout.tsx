@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import TopBar from '@/components/shared/TopBar';
 import { Home, Users, FileText, BarChart3, Settings, Shield } from 'lucide-react';
@@ -34,13 +35,14 @@ export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element
           </div>
           <nav className="p-4 space-y-2">
             {navItems.map((item) => (
-              <button
+              <Link
                 key={item.label}
+                href={item.href}
                 className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.label}</span>
-              </button>
+              </Link>
             ))}
           </nav>
           {user && (
