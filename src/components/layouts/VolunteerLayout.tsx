@@ -1,60 +1,65 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Home, Calendar, Bell, Star } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useData } from '@/contexts/DataContext';
-import TopBar from '../shared/TopBar';
-import NavTabs from '../shared/NavTabs';
+import React, { ReactNode } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { Button } from '../ui/button';
+import { Home, Calendar, User, LogOut } from 'lucide-react';
 
 interface VolunteerLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-const TABS = [
-  { label: 'Requests', icon: Home },
-  { label: 'Schedule', icon: Calendar },
-  { label: 'Notifications', icon: Bell },
-  { label: 'Reviews', icon: Star }
-];
-
-/**
- * Layout component for the volunteer portal
- * Includes TopBar with switch to senior, and navigation tabs
- */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
-  const { switchRole, currentUser } = useAuth();
-  const { notifications } = useData();
-  const [activeTab, setActiveTab] = useState('Requests');
+  const { user, logout } = useAuth();
 
-  const unreadCount = (notifications ?? []).filter(
-    n => n.userId === currentUser?.id && !n.read
-  ).length;
-
-  // Only add badge to Notifications tab when unreadCount > 0
-  const tabs = TABS.map(tab => 
-    tab.label === 'Notifications' && unreadCount > 0
-      ? { ...tab, badge: unreadCount }
-      : tab
-  );
-
-  const handleSwitch = (): void => {
-    switchRole('senior');
-  };
+  const navItems = [
+    { icon: <Home className="w-5 h-5" />, label: 'Home', active: true },
+    { icon: <Calendar className="w-5 h-5" />, label: 'Schedule', active: false },
+    { icon: <User className="w-5 h-5" />, label: 'Profile', active: false },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar
-        portalName="Volunteer Portal"
-        switchLabel="Switch to Senior"
-        onSwitch={handleSwitch}
-      />
-      <NavTabs
-        tabs={tabs}
-        active={activeTab}
-        onChange={setActiveTab}
-      />
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-gray-900">VolunteerConnect</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Navigation */}
+      <nav className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-4">
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  item.active
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {item.icon}
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
     </div>
