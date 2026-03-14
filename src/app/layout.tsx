@@ -1,31 +1,30 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "../components/theme-provider";
-
-const inter = Inter({ subsets: ["latin"] });
+import React from 'react';
+import type { Metadata } from 'next';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DataProvider } from '@/contexts/DataContext';
+import { ToastProvider } from '@/components/ui/toast';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Next.js App with Dark Mode",
-  description: "A Next.js application with dark/light mode toggle",
+  title: 'VolunteerConnect',
+  description: 'Connect volunteers with seniors in need',
 };
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): JSX.Element {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+    <html lang="en">
+      <body>
+        <AuthProvider>
+          <DataProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </DataProvider>
+        </AuthProvider>
       </body>
     </html>
   );
