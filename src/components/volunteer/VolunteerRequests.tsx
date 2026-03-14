@@ -6,10 +6,6 @@ import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import { useData } from '@/contexts/DataContext'
 import { Calendar, Clock, MapPin } from 'lucide-react'
-import { Location } from '@/types'
-
-// No existing ConfirmDialog component was found in the codebase;
-// using an inline modal implementation.
 
 const getInitials = (name: string) =>
   name
@@ -27,34 +23,72 @@ const priorityClass: Record<string, string> = {
 
 export default function VolunteerRequests() {
   const { user } = useAuth()
-  const { requests, acceptRequest, declineRequest, startTask } = useData()
+  const { requests, updateRequest } = useData()
   const router = useRouter()
 
   const [confirmDeclineId, setConfirmDeclineId] = useState<string | null>(null)
+  const [acceptingIds, setAcceptingIds] = useState<Set<string>>(new Set())
+  const [startingIds, setStartingIds] = useState<Set<string>>(new Set())
 
   const pendingRequests = requests.filter((r) => r.status === 'pending')
-  const mySchedule = requests.filter(
-    (r) =>
-      r.volunteerId === user?.id &&
-      ['accepted', 'started'].includes(r.status)
-  )
+
+  // Guard against user being null
+  const mySchedule =
+    user != null
+      ? requests.filter(
+          (r) =>
+            r.volunteerId === user.id &&
+            ['accepted', 'started'].includes(r.status)
+        )
+      : []
 
   const handleAccept = async (requestId: string) => {
     if (!user) return
-    await acceptRequest(requestId, user.id)
-    toast.success('Request accepted!')
+    if (acceptingIds.has(requestId)) return
+    setAcceptingIds((prev) => new Set(prev).add(requestId))
+    try {
+      updateRequest(requestId, { status: 'accepted', volunteerId: user.id })
+      toast.success('Request accepted!')
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to accept request. Please try again.')
+    } finally {
+      setAcceptingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(requestId)
+        return next
+      })
+    }
   }
 
   const handleDeclineConfirm = async () => {
     if (!confirmDeclineId) return
-    await declineRequest(confirmDeclineId)
-    toast('Request declined')
+    const idToDecline = confirmDeclineId
     setConfirmDeclineId(null)
+    try {
+      updateRequest(idToDecline, { status: 'cancelled' })
+      toast('Request declined')
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to decline request. Please try again.')
+    }
   }
 
   const handleStartTask = async (requestId: string) => {
-    await startTask(requestId)
-    router.push(`/volunteer/active/${requestId}`)
+    if (startingIds.has(requestId)) return
+    setStartingIds((prev) => new Set(prev).add(requestId))
+    try {
+      updateRequest(requestId, { status: 'accepted' })
+      router.push(`/volunteer/active/${requestId}`)
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to start task. Please try again.')
+      setStartingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(requestId)
+        return next
+      })
+    }
   }
 
   return (
@@ -73,7 +107,32 @@ export default function VolunteerRequests() {
         ) : (
           <div className="space-y-4">
             {pendingRequests.map((request) => {
-              const location = request.location as Location | undefined
+              const location =
+                'location' in request
+                  ? (request as unknown as { location?: { address?: string } }).location
+                  : undefined
+              const priority =
+                'priority' in request
+                  ? (request as unknown as { priority?: string }).priority
+                  : undefined
+              const category =
+                'category' in request
+                  ? (request as unknown as { category?: string }).category
+                  : undefined
+              const seniorName =
+                'seniorName' in request
+                  ? (request as unknown as { seniorName?: string }).seniorName
+                  : undefined
+              const scheduledTime =
+                'scheduledTime' in request
+                  ? (request as unknown as { scheduledTime?: string }).scheduledTime
+                  : undefined
+              const duration =
+                'duration' in request
+                  ? (request as unknown as { duration?: string }).duration
+                  : undefined
+              const isAccepting = acceptingIds.has(request.id)
+
               return (
                 <div
                   key={request.id}
@@ -82,28 +141,30 @@ export default function VolunteerRequests() {
                   {/* Card header */}
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm flex-shrink-0">
-                      {getInitials(request.seniorName)}
+                      {getInitials(seniorName ?? request.title)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 text-base leading-tight">
                         {request.title}
                       </h3>
-                      <p className="text-gray-500 text-sm mt-0.5">
-                        Requested by {request.seniorName}
-                      </p>
+                      {seniorName && (
+                        <p className="text-gray-500 text-sm mt-0.5">
+                          Requested by {seniorName}
+                        </p>
+                      )}
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {request.priority && (
+                        {priority && (
                           <span
                             className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              priorityClass[request.priority] ?? 'bg-gray-400 text-white'
+                              priorityClass[priority] ?? 'bg-gray-400 text-white'
                             }`}
                           >
-                            {request.priority}
+                            {priority}
                           </span>
                         )}
-                        {request.category && (
+                        {category && (
                           <span className="border border-gray-300 text-gray-600 bg-white rounded-full px-3 py-1 text-xs">
-                            {request.category}
+                            {category}
                           </span>
                         )}
                       </div>
@@ -122,14 +183,14 @@ export default function VolunteerRequests() {
                         <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         <span>
                           {request.scheduledDate}
-                          {request.scheduledTime ? ` at ${request.scheduledTime}` : ''}
+                          {scheduledTime ? ` at ${scheduledTime}` : ''}
                         </span>
                       </div>
                     )}
-                    {request.duration && (
+                    {duration && (
                       <div className="flex items-center gap-2 text-sm text-gray-700">
                         <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span>{request.duration}</span>
+                        <span>{duration}</span>
                       </div>
                     )}
                     {location?.address && (
@@ -144,13 +205,15 @@ export default function VolunteerRequests() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => handleAccept(request.id)}
-                      className="w-1/2 py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+                      disabled={isAccepting}
+                      className="w-1/2 py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Accept
+                      {isAccepting ? 'Accepting...' : 'Accept'}
                     </button>
                     <button
                       onClick={() => setConfirmDeclineId(request.id)}
-                      className="w-1/2 py-2.5 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors"
+                      disabled={isAccepting}
+                      className="w-1/2 py-2.5 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Decline
                     </button>
@@ -176,7 +239,24 @@ export default function VolunteerRequests() {
         ) : (
           <div className="space-y-4">
             {mySchedule.map((request) => {
-              const location = request.location as Location | undefined
+              const location =
+                'location' in request
+                  ? (request as unknown as { location?: { address?: string } }).location
+                  : undefined
+              const seniorName =
+                'seniorName' in request
+                  ? (request as unknown as { seniorName?: string }).seniorName
+                  : undefined
+              const scheduledTime =
+                'scheduledTime' in request
+                  ? (request as unknown as { scheduledTime?: string }).scheduledTime
+                  : undefined
+              const duration =
+                'duration' in request
+                  ? (request as unknown as { duration?: string }).duration
+                  : undefined
+              const isStarting = startingIds.has(request.id)
+
               return (
                 <div
                   key={request.id}
@@ -185,13 +265,15 @@ export default function VolunteerRequests() {
                   {/* Card header */}
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm flex-shrink-0">
-                      {getInitials(request.seniorName)}
+                      {getInitials(seniorName ?? request.title)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 text-base leading-tight">
                         {request.title}
                       </h3>
-                      <p className="text-gray-500 text-sm mt-0.5">with {request.seniorName}</p>
+                      {seniorName && (
+                        <p className="text-gray-500 text-sm mt-0.5">with {seniorName}</p>
+                      )}
                     </div>
                   </div>
 
@@ -202,14 +284,14 @@ export default function VolunteerRequests() {
                         <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
                         <span>
                           {request.scheduledDate}
-                          {request.scheduledTime ? ` at ${request.scheduledTime}` : ''}
+                          {scheduledTime ? ` at ${scheduledTime}` : ''}
                         </span>
                       </div>
                     )}
-                    {request.duration && (
+                    {duration && (
                       <div className="flex items-center gap-2 text-sm text-gray-700">
                         <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span>{request.duration}</span>
+                        <span>{duration}</span>
                       </div>
                     )}
                     {location?.address && (
@@ -223,9 +305,10 @@ export default function VolunteerRequests() {
                   {/* Action */}
                   <button
                     onClick={() => handleStartTask(request.id)}
-                    className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+                    disabled={isStarting}
+                    className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Start Task
+                    {isStarting ? 'Starting...' : 'Start Task'}
                   </button>
                 </div>
               )
@@ -235,7 +318,6 @@ export default function VolunteerRequests() {
       </section>
 
       {/* ── Inline Confirm Dialog ── */}
-      {/* No existing ConfirmDialog component found; using inline modal. */}
       {confirmDeclineId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
