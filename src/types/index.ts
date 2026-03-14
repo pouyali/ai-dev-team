@@ -1,82 +1,59 @@
-// User roles
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
-// Request priorities
-export type Priority = 'low' | 'medium' | 'high';
-
-// Request categories
-export type Category = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Home Help' | 'Other';
-
-// Request status
-export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
-
-// Location type
-export interface Location {
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
-}
-
-// User type
 export interface User {
   id: string;
   name: string;
   email: string;
-  phone: string;
   role: UserRole;
   avatar?: string;
-  location: Location;
-  createdAt: string;
-  rating?: number;
-  totalReviews?: number;
-  bio?: string;
-  skills?: string[];
-  availability?: string[];
+  phone?: string;
 }
 
-// Help request type
+export type RequestStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+export type RequestPriority = 'low' | 'medium' | 'high';
+export type RequestCategory = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Home Help' | 'Medical' | 'Other';
+
 export interface HelpRequest {
   id: string;
   title: string;
   description: string;
-  category: Category;
-  priority: Priority;
+  category: RequestCategory;
+  priority: RequestPriority;
   status: RequestStatus;
-  requesterId: string;
+  seniorId: string;
+  seniorName: string;
   volunteerId?: string;
-  location: Location;
-  scheduledDate: string;
-  estimatedDuration: string;
+  volunteerName?: string;
+  date: string;
+  time: string;
+  duration: string;
+  location: string;
+  latitude?: number;
+  longitude?: number;
   createdAt: string;
   updatedAt: string;
-  completedAt?: string;
-  notes?: string;
 }
 
-// Review type
-export interface Review {
-  id: string;
-  requestId: string;
-  reviewerId: string;
-  revieweeId: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-// Notification type
 export interface Notification {
   id: string;
   userId: string;
   title: string;
   message: string;
-  type: 'request' | 'reminder' | 'review' | 'system';
+  type: 'request' | 'update' | 'reminder' | 'review';
   read: boolean;
   createdAt: string;
   relatedRequestId?: string;
+}
+
+export interface Review {
+  id: string;
+ visiblename: string;
+  reviewerId: string;
+  reviewerName: string;
+  revieweeId: string;
+  revieweeName: string;
+  requestId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }
