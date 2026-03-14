@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle, FileText, User } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, FileText, UserCircle } from 'lucide-react';
 import TopBar from '../shared/TopBar';
 import NavTabs from '../shared/NavTabs';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,20 +10,20 @@ interface SeniorLayoutProps {
   children: React.ReactNode;
 }
 
-const SENIOR_TABS = [
-  { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Create Request', icon: PlusCircle },
-  { label: 'My Requests', icon: FileText },
-  { label: 'Profile', icon: User },
-];
-
 /**
- * Layout component for the senior portal
- * Includes TopBar, NavTabs, and main content area
+ * Layout component for the Senior Portal
+ * Includes TopBar, NavTabs with Dashboard, Create Request, My Requests, Profile
  */
 export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Element {
-  const [activeTab, setActiveTab] = useState('Dashboard');
   const { switchRole } = useAuth();
+  const [activeTab, setActiveTab] = useState('Dashboard');
+
+  const tabs = [
+    { label: 'Dashboard', icon: LayoutDashboard },
+    { label: 'Create Request', icon: PlusCircle },
+    { label: 'My Requests', icon: FileText },
+    { label: 'Profile', icon: UserCircle }
+  ];
 
   const handleSwitch = (): void => {
     switchRole('volunteer');
@@ -37,11 +37,11 @@ export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Eleme
         onSwitch={handleSwitch}
       />
       <NavTabs
-        tabs={SENIOR_TABS}
+        tabs={tabs}
         active={activeTab}
         onChange={setActiveTab}
       />
-      <main className="p-6">
+      <main className="px-6 py-6">
         {children}
       </main>
     </div>
