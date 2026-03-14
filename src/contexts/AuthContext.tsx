@@ -14,7 +14,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+/**
+ * Auth provider component that manages user authentication state
+ */
+export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const login = useCallback((role: UserRole): void => {
@@ -40,12 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     isAuthenticated: currentUser !== null,
     login,
     logout,
-    switchRole,
+    switchRole
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
+/**
+ * Hook to access auth context
+ */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
