@@ -93,7 +93,7 @@ function AppContent(): JSX.Element {
 }
 
 /**
- * Root App component with providers
+ * Main App component with providers
  */
 export default function App(): JSX.Element {
   return (
