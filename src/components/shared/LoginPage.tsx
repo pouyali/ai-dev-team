@@ -1,95 +1,88 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Users, Heart, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
 
 /**
- * Login page component for selecting user role
+ * Login page component for user authentication
+ * Allows users to select a role and login
  */
 export default function LoginPage(): JSX.Element {
   const { login } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('volunteer');
 
-  const roles: { role: UserRole; icon: React.ReactNode; title: string; description: string }[] = [
-    {
-      role: 'volunteer',
-      icon: <Users className="w-8 h-8" />,
-      title: 'Volunteer',
-      description: 'Help seniors in your community with everyday tasks'
-    },
-    {
-      role: 'senior',
-      icon: <Heart className="w-8 h-8" />,
-      title: 'Senior',
-      description: 'Request assistance from caring volunteers'
-    },
-    {
-      role: 'admin',
-      icon: <Shield className="w-8 h-8" />,
-      title: 'Administrator',
-      description: 'Manage volunteers, seniors, and requests'
-    }
-  ];
-
-  const handleLogin = () => {
-    if (selectedRole) {
-      login(selectedRole);
-    }
+  const handleLogin = (): void => {
+    login(selectedRole);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Logo and Title */}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="w-8 h-8 text-white" />
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">VolunteerConnect</h1>
-          <p className="text-gray-600 mt-2">Connecting volunteers with seniors who need assistance</p>
+          <p className="text-gray-500 mt-2">Select a role to continue</p>
         </div>
 
-        {/* Role Selection */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Select your role</h2>
-          <div className="space-y-3">
-            {roles.map(({ role, icon, title, description }) => (
-              <button
-                key={role}
-                onClick={() => setSelectedRole(role)}
-                className={`w-full flex items-start p-4 rounded-lg border-2 transition-all text-left ${
-                  selectedRole === role
-                    ? 'border-gray-900 bg-gray-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className={`p-2 rounded-lg mr-4 ${
-                  selectedRole === role ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600'
-                }`}>
-                  {icon}
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">{title}</h3>
-                  <p className="text-sm text-gray-500 mt-1">{description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-
+        <div className="space-y-3 mb-6">
           <button
-            onClick={handleLogin}
-            disabled={!selectedRole}
-            className={`w-full mt-6 py-3 px-4 rounded-lg font-medium transition-colors ${
-              selectedRole
-                ? 'bg-gray-900 text-white hover:bg-gray-800'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            onClick={() => setSelectedRole('volunteer')}
+            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+              selectedRole === 'volunteer'
+                ? 'border-gray-900 bg-gray-50'
+                : 'border-gray-200 hover:border-gray-300'
             }`}
           >
-            Continue as {selectedRole ? roles.find(r => r.role === selectedRole)?.title : '...'}
+            <div className="font-medium text-gray-900">Volunteer</div>
+            <div className="text-sm text-gray-500">Help seniors in your community</div>
+          </button>
+
+          <button
+            onClick={() => setSelectedRole('senior')}
+            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+              selectedRole === 'senior'
+                ? 'border-gray-900 bg-gray-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="font-medium text-gray-900">Senior</div>
+            <div className="text-sm text-gray-500">Request assistance from volunteers</div>
+          </button>
+
+          <button
+            onClick={() => setSelectedRole('admin')}
+            className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+              selectedRole === 'admin'
+                ? 'border-gray-900 bg-gray-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="font-medium text-gray-900">Admin</div>
+            <div className="text-sm text-gray-500">Manage the platform</div>
           </button>
         </div>
+
+        <button
+          onClick={handleLogin}
+          className="w-full py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+        >
+          Continue as {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
+        </button>
       </div>
     </div>
   );
