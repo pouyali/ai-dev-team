@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { DataProvider } from './contexts/DataContext';
-import { Button } from './components/ui/button';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { DataProvider } from '@/contexts/DataContext';
+import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import LoginPage from './components/shared/LoginPage';
-import VolunteerLayout from './components/layouts/VolunteerLayout';
-import SeniorLayout from './components/layouts/SeniorLayout';
-import AdminLayout from './components/layouts/AdminLayout';
+import LoginPage from '@/components/shared/LoginPage';
+import VolunteerLayout from '@/components/layouts/VolunteerLayout';
+import SeniorLayout from '@/components/layouts/SeniorLayout';
+import AdminLayout from '@/components/layouts/AdminLayout';
 
 /**
  * Placeholder component for volunteer dashboard
