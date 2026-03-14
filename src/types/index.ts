@@ -1,7 +1,6 @@
 /**
- * User roles in the application
+ * Core type definitions for the VolunteerConnect application
  */
-export type UserRole = 'volunteer' | 'senior' | 'admin';
 
 /**
  * Urgency level for help requests
@@ -14,50 +13,89 @@ export type UrgencyLevel = 'low' | 'medium' | 'high';
 export type RequestStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
 
 /**
- * User interface
+ * User roles in the system
  */
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  phone?: string;
-  address?: string;
-  createdAt: Date;
+export type UserRole = 'volunteer' | 'senior' | 'admin';
+
+/**
+ * Location information
+ */
+export interface Location {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 /**
- * Help request interface
+ * User profile information
+ */
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  phone?: string;
+  location?: Location;
+  avatar?: string;
+  bio?: string;
+  skills?: string[];
+  availability?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Help request created by seniors
  */
 export interface HelpRequest {
   id: string;
   title: string;
   description: string;
-  seniorId: string;
-  volunteerId?: string;
-  status: RequestStatus;
-  urgency: UrgencyLevel;
   category: string;
-  createdAt: Date;
-  updatedAt: Date;
-  scheduledDate?: Date;
+  urgency: UrgencyLevel;
+  status: RequestStatus;
+  seniorId: string;
+  senior?: User;
+  volunteerId?: string;
+  volunteer?: User;
+  location?: Location;
+  scheduledDate?: string;
+  scheduledTime?: string;
+  estimatedDuration?: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
 }
 
 /**
- * Volunteer profile interface
+ * Review/rating for completed requests
  */
-export interface VolunteerProfile extends User {
-  role: 'volunteer';
-  skills: string[];
-  availability: string[];
-  completedRequests: number;
+export interface Review {
+  id: string;
+  requestId: string;
+  reviewerId: string;
+  revieweeId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
 }
 
 /**
- * Senior profile interface
+ * Notification for users
  */
-export interface SeniorProfile extends User {
-  role: 'senior';
-  emergencyContact?: string;
-  specialNeeds?: string[];
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'request_created' | 'request_accepted' | 'request_completed' | 'message' | 'reminder';
+  title: string;
+  message: string;
+  read: boolean;
+  relatedRequestId?: string;
+  createdAt: string;
 }
