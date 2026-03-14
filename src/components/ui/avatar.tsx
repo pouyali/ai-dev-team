@@ -1,5 +1,4 @@
 import * as React from "react"
-import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface AvatarProps {
@@ -19,7 +18,8 @@ export function Avatar({ src, alt, fallback, className, size = 40 }: AvatarProps
         className={cn("relative overflow-hidden rounded-full bg-gray-200", className)}
         style={{ width: size, height: size }}
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={src}
           alt={alt || fallback || "avatar"}
           width={size}
@@ -48,16 +48,15 @@ export function Avatar({ src, alt, fallback, className, size = 40 }: AvatarProps
 // Backward-compatible exports matching original radix-ui style interface
 export const AvatarImage = React.forwardRef<
   HTMLImageElement,
-  React.ComponentPropsWithoutRef<typeof Image> & { src?: string; alt?: string }
+  React.ImgHTMLAttributes<HTMLImageElement>
 >(({ src, alt, className, ...props }, ref) => {
   if (!src) return null
   return (
-    <Image
-      ref={ref as React.Ref<HTMLImageElement>}
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      ref={ref}
       src={src}
       alt={alt || ""}
-      width={40}
-      height={40}
       className={cn("h-full w-full object-cover", className)}
       {...props}
     />
