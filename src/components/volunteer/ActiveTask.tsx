@@ -6,23 +6,10 @@ import { useRouter } from 'next/navigation'
 import { Star, X } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useData } from '@/contexts/DataContext'
+import { calculateDistance } from '@/utils/helpers'
 
 // Dynamically import the map to avoid SSR issues
 const MapView = dynamic(() => import('./MapView'), { ssr: false })
-
-function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371 // Earth radius in km
-  const dLat = ((lat2 - lat1) * Math.PI) / 180
-  const dLng = ((lng2 - lng1) * Math.PI) / 180
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
-}
 
 function StarRating({
   value,
@@ -194,6 +181,7 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
     volunteerPos && destination
       ? calculateDistance(volunteerPos.lat, volunteerPos.lng, destination.lat, destination.lng)
       : 0
+  // calculateDistance returns miles; ETA assumes 30 mph average speed
   const eta = Math.round((distance / 30) * 60)
 
   const seniorName = senior?.name ?? 'Senior'
@@ -271,7 +259,7 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
           <div className="flex items-center gap-6 text-sm">
             <div>
               <span className="text-gray-500">Distance: </span>
-              <span className="font-semibold text-gray-800">{distance.toFixed(2)} km</span>
+              <span className="font-semibold text-gray-800">{distance.toFixed(1)} mi</span>
             </div>
             <div>
               <span className="text-gray-500">ETA: </span>
