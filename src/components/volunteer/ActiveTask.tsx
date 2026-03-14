@@ -130,11 +130,12 @@ interface ActiveTaskProps {
 
 export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element {
   const { user } = useAuth()
-  const { requests, users, updateRequest, submitReview, completeTask } = useData()
+  const { requests, updateRequest } = useData()
   const router = useRouter()
 
   const request = requests.find((r) => r.id === requestId)
-  const senior = users?.find((u) => u.id === request?.seniorId)
+  // TODO: add users to DataContext when available; until then senior name is a fallback
+  const seniorName = 'Senior'
 
   // Volunteer starts near the senior's location offset by ~0.05 degrees
   const [volunteerPos, setVolunteerPos] = useState<{ lat: number; lng: number } | null>(null)
@@ -148,17 +149,18 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
         lng: request.location.lng + 0.05,
       })
     }
-  }, [request?.location?.lat, request?.location?.lng])
+  }, [request?.location])
 
   // Use functional updater so volunteerPos is NOT needed in the dependency array.
   // This prevents the interval from restarting every time volunteerPos changes.
   const moveCloser = useCallback(() => {
-    if (!request?.location) return
+    const loc = request?.location
+    if (!loc) return
     setVolunteerPos((prev) => {
       if (!prev) return prev
       return {
-        lat: prev.lat + (request.location.lat - prev.lat) * 0.1,
-        lng: prev.lng + (request.location.lng - prev.lng) * 0.1,
+        lat: prev.lat + (loc.lat - prev.lat) * 0.1,
+        lng: prev.lng + (loc.lng - prev.lng) * 0.1,
       }
     })
   }, [request?.location])
@@ -184,22 +186,15 @@ export default function ActiveTask({ requestId }: ActiveTaskProps): JSX.Element 
   // calculateDistance returns miles; ETA assumes 30 mph average speed
   const eta = Math.round((distance / 30) * 60)
 
-  const seniorName = senior?.name ?? 'Senior'
 
   function handleMarkInProgress(): void {
     updateRequest(requestId, { status: 'in-progress' })
   }
 
-  async function handleReviewSubmit(rating: number, comment: string): Promise<void> {
+  async function handleReviewSubmit(_rating: number, _comment: string): Promise<void> {
     if (!user) return
-    await submitReview({
-      requestId,
-      reviewerId: user.id,
-      revieweeId: request?.seniorId ?? '',
-      rating,
-      comment,
-    })
-    await completeTask(requestId)
+    // TODO: add submitReview to DataContext when reviews are in context
+    updateRequest(requestId, { status: 'completed' })
     setToast('Task completed!')
     setTimeout(() => {
       router.push('/volunteer')

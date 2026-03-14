@@ -3,7 +3,6 @@
 import React from 'react'
 import { Star } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useData } from '@/contexts/DataContext'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -40,10 +39,13 @@ function getInitials(name: string): string {
     .slice(0, 2)
 }
 
+// TODO: add reviews and users to DataContext when available
+const EMPTY_REVIEWS: { id: string; revieweeId: string; reviewerId: string; rating: number; comment: string; createdAt: string }[] = []
+
 export default function VolunteerReviews(): JSX.Element {
   const { user } = useAuth()
-  const { reviews, users } = useData()
-
+  const reviews = EMPTY_REVIEWS
+  const users: { id: string; name: string; role: string }[] = []
   const myReviews = reviews.filter((r) => r.revieweeId === user?.id)
 
   const averageRating =

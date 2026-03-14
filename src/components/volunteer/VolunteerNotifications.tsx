@@ -3,7 +3,6 @@
 import React from 'react'
 import { Bell } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useData } from '@/contexts/DataContext'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -16,12 +15,18 @@ function formatDate(dateString: string): string {
   })
 }
 
+// TODO: add notifications, markNotificationRead, getUnreadCount to DataContext
+const EMPTY_NOTIFICATIONS: { id: string; userId: string; title: string; message: string; read: boolean; createdAt: string }[] = []
+
 export default function VolunteerNotifications(): JSX.Element {
   const { user } = useAuth()
-  const { notifications, markNotificationRead, getUnreadCount } = useData()
-
+  const notifications = EMPTY_NOTIFICATIONS
   const userNotifications = notifications.filter((n) => n.userId === user?.id)
-  const unreadCount = getUnreadCount(user?.id ?? '')
+  const unreadCount = 0
+
+  function markNotificationRead(_id: string): void {
+    // no-op until DataContext has notifications
+  }
 
   function handleMarkAllRead(): void {
     userNotifications

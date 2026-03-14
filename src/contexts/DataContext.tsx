@@ -8,9 +8,10 @@ export interface Request {
   description: string;
   seniorId: string;
   volunteerId?: string;
-  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  status: 'pending' | 'accepted' | 'started' | 'in-progress' | 'completed' | 'cancelled';
   createdAt: string;
   scheduledDate?: string;
+  location?: { lat: number; lng: number };
 }
 
 export interface DataContextType {

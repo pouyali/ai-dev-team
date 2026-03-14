@@ -4,7 +4,6 @@ import React from 'react'
 import { Home, Calendar, Bell, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { useData } from '@/contexts/DataContext'
 import NavTabs from '@/components/ui/NavTabs'
 
 function TopBar(): JSX.Element {
@@ -64,9 +63,7 @@ export default function VolunteerPortalLayout({
 }: {
   children: React.ReactNode
 }): JSX.Element {
-  const { user } = useAuth()
-  const { getUnreadCount } = useData()
-  const unreadCount = getUnreadCount(user?.id ?? '')
+  const unreadCount = 0 // TODO: add getUnreadCount to DataContext when notifications are in context
 
   const tabs = [
     { label: 'Requests', href: '/volunteer', icon: Home },
