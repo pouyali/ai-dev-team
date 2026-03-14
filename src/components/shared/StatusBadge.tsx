@@ -8,10 +8,11 @@ interface StatusBadgeProps {
 }
 
 /**
- * Status badge component with color-coded styling
+ * Badge component for displaying request status
+ * Colors: pending=gray, accepted=blue, in-progress=purple, completed=green, rejected=red
  */
 export default function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
-  const getStyles = () => {
+  const getStyles = (): string => {
     switch (status) {
       case 'pending':
         return 'bg-gray-100 text-gray-700 border-gray-300';
@@ -21,14 +22,14 @@ export default function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
         return 'bg-purple-100 text-purple-700 border-purple-300';
       case 'completed':
         return 'bg-green-100 text-green-700 border-green-300';
-      case 'cancelled':
+      case 'rejected':
         return 'bg-red-100 text-red-700 border-red-300';
       default:
         return 'bg-gray-100 text-gray-700 border-gray-300';
     }
   };
 
-  const getLabel = () => {
+  const getLabel = (): string => {
     switch (status) {
       case 'in-progress':
         return 'In Progress';
@@ -38,7 +39,7 @@ export default function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStyles()}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${getStyles()}`}>
       {getLabel()}
     </span>
   );
