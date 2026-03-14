@@ -6,78 +6,69 @@ export type UserRole = 'volunteer' | 'senior' | 'admin';
 
 export interface User {
   id: string;
-  email: string;
   name: string;
+  email: string;
   role: UserRole;
+  avatar?: string;
+  phone?: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (userId: string) => void;
   logout: () => void;
-  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Mock users for development
-const MOCK_USERS: Record<string, User & { password: string }> = {
-  'volunteer@test.com': {
+const mockUsers: User[] = [
+  {
     id: '1',
-    email: 'volunteer@test.com',
-    name: 'John Volunteer',
+    name: 'Alice Volunteer',
+    email: 'volunteer@example.com',
     role: 'volunteer',
-    password: 'password123',
+    avatar: '/avatars/alice.jpg',
+    phone: '555-0101',
   },
-  'senior@test.com': {
+  {
     id: '2',
-    email: 'senior@test.com',
-    name: 'Mary Senior',
+    name: 'Bob Senior',
+    email: 'senior@example.com',
     role: 'senior',
-    password: 'password123',
+    avatar: '/avatars/bob.jpg',
+    phone: '555-0102',
   },
-  'admin@test.com': {
+  {
     id: '3',
-    email: 'admin@test.com',
-    name: 'Admin User',
+    name: 'Carol Admin',
+    email: 'admin@example.com',
     role: 'admin',
-    password: 'password123',
+    avatar: '/avatars/carol.jpg',
+    phone: '555-0103',
   },
-};
+];
 
 export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const login = useCallback(async (email: string, password: string): Promise<void> => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const mockUser = MOCK_USERS[email.toLowerCase()];
-      if (!mockUser || mockUser.password !== password) {
-        throw new Error('Invalid email or password');
-      }
-
-      const { password: _, ...userWithoutPassword } = mockUser;
-      setUser(userWithoutPassword);
-    } finally {
-      setIsLoading(false);
+  const login = useCallback((userId: string) => {
+    const foundUser = mockUsers.find((u) => u.id === userId);
+    if (foundUser) {
+      setUser(foundUser);
     }
   }, []);
 
-  const logout = useCallback((): void => {
+  const logout = useCallback(() => {
     setUser(null);
   }, []);
 
   const value: AuthContextType = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: user !== null,
     login,
     logout,
-    isLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -90,3 +81,6 @@ export function useAuth(): AuthContextType {
   }
   return context;
 }
+
+// Export mock users for use in login page
+export { mockUsers };
