@@ -14,31 +14,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-/**
- * Authentication provider component
- * Manages user authentication state and role switching
- */
-export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
+export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  const login = useCallback((role: UserRole) => {
-    // Find a user with the matching role from mock data
+  const login = useCallback((role: UserRole): void => {
     const user = mockUsers.find(u => u.role === role);
     if (user) {
       setCurrentUser(user);
     }
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback((): void => {
     setCurrentUser(null);
   }, []);
 
-  const switchRole = useCallback((role: UserRole) => {
-    // Find a user with the new role from mock data
+  const switchRole = useCallback((role: UserRole): void => {
     const user = mockUsers.find(u => u.role === role);
     if (user) {
       setCurrentUser(user);
@@ -50,19 +40,12 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     isAuthenticated: currentUser !== null,
     login,
     logout,
-    switchRole
+    switchRole,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * Hook to access authentication context
- */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === undefined) {
