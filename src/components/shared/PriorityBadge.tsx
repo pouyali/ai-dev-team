@@ -8,11 +8,11 @@ interface PriorityBadgeProps {
 }
 
 /**
- * Priority badge component with color-coded styling
- * high: red, medium: black, low: green
+ * Badge component for displaying request priority level
+ * Colors: high=red, medium=black, low=green
  */
 export default function PriorityBadge({ priority }: PriorityBadgeProps): JSX.Element {
-  const getStyles = () => {
+  const getStyles = (): string => {
     switch (priority) {
       case 'high':
         return 'bg-red-500 text-white';
@@ -26,7 +26,7 @@ export default function PriorityBadge({ priority }: PriorityBadgeProps): JSX.Ele
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStyles()}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStyles()}`}>
       {priority} priority
     </span>
   );
