@@ -1,52 +1,43 @@
 'use client';
 
-import React, { ReactNode } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import TopBar from '@/components/shared/TopBar';
-import { Home, PlusCircle, Clock, User, Settings } from 'lucide-react';
+import { Avatar } from '@/components/shared/Avatar';
+import { Button } from '@/components/ui/button';
 
 interface SeniorLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function SeniorLayout({ children }: SeniorLayoutProps): JSX.Element {
-  const { user } = useAuth();
-
-  const navItems = [
-    { icon: Home, label: 'Home', href: '/home' },
-    { icon: PlusCircle, label: 'New Request', href: '/new-request' },
-    { icon: Clock, label: 'My Requests', href: '/requests' },
-    { icon: User, label: 'Profile', href: '/profile' },
-    { icon: Settings, label: 'Settings', href: '/settings' },
-  ];
+  const { user, switchRole } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar />
-      <div className="flex">
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-          <nav className="p-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-lg"
-              >
-                <item.icon className="w-6 h-6" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-          {user && (
-            <div className="p-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">Welcome back,</p>
-              <p className="text-base font-medium text-gray-900">{user.name}</p>
+      <header className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
             </div>
-          )}
-        </aside>
-        <main className="flex-1 p-6">{children}</main>
-      </div>
+            <div>
+              <h1 className="font-semibold text-gray-900">VolunteerConnect</h1>
+              <p className="text-sm text-gray-500">Senior Portal</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => switchRole('volunteer')}>
+              Switch to Volunteer
+            </Button>
+            <Avatar name={user?.name || 'User'} size="sm" />
+          </div>
+        </div>
+      </header>
+      <main className="max-w-4xl mx-auto p-4">
+        {children}
+      </main>
     </div>
   );
 }
