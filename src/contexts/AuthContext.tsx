@@ -22,31 +22,48 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for development
+// Mock users for development — kept in sync with src/utils/mockData.ts
 const mockUsers: User[] = [
   {
-    id: '1',
-    name: 'Alice Volunteer',
-    email: 'volunteer@example.com',
+    id: 'user-st',
+    name: 'Sarah Thompson',
+    email: 'sarah@example.com',
     role: 'volunteer',
-    avatar: '/avatars/alice.jpg',
+    phone: '555-0201',
+  },
+  {
+    id: 'user-jw',
+    name: 'James Wilson',
+    email: 'james@example.com',
+    role: 'volunteer',
+    phone: '555-0202',
+  },
+  {
+    id: 'user-ms',
+    name: 'Margaret Smith',
+    email: 'margaret@example.com',
+    role: 'senior',
     phone: '555-0101',
   },
   {
-    id: '2',
-    name: 'Bob Senior',
-    email: 'senior@example.com',
+    id: 'user-rj',
+    name: 'Robert Johnson',
+    email: 'robert@example.com',
     role: 'senior',
-    avatar: '/avatars/bob.jpg',
     phone: '555-0102',
   },
   {
-    id: '3',
-    name: 'Carol Admin',
+    id: 'user-dw',
+    name: 'Dorothy Williams',
+    email: 'dorothy@example.com',
+    role: 'senior',
+    phone: '555-0103',
+  },
+  {
+    id: 'user-ad',
+    name: 'Admin User',
     email: 'admin@example.com',
     role: 'admin',
-    avatar: '/avatars/carol.jpg',
-    phone: '555-0103',
   },
 ];
 
