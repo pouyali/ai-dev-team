@@ -1,3 +1,5 @@
-export default function SchedulePage() {
-  return <div className="p-4 text-gray-500">Schedule — coming in phase 3b</div>
+import VolunteerSchedule from '@/components/volunteer/VolunteerSchedule';
+
+export default function SchedulePage(): JSX.Element {
+  return <VolunteerSchedule />;
 }
