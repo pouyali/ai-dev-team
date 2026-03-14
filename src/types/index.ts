@@ -1,58 +1,108 @@
 /**
- * Core type definitions for VolunteerConnect
+ * Type definitions for the VolunteerConnect application
  */
 
-/** User roles in the system */
+/**
+ * User roles in the system
+ */
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
-/** Status of a help request */
-export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
+/**
+ * Status of a help request
+ */
+export type RequestStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
 
-/** Urgency level for help requests */
+/**
+ * Urgency level for help requests
+ */
 export type UrgencyLevel = 'low' | 'medium' | 'high';
 
-/** User profile information */
+/**
+ * Priority level for requests
+ */
+export type Priority = 'low' | 'medium' | 'high';
+
+/**
+ * Categories of help requests
+ */
+export type Category = 'transportation' | 'groceries' | 'medical' | 'technology' | 'companionship' | 'household' | 'other';
+
+/**
+ * Location information
+ */
+export interface Location {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+/**
+ * User in the system
+ */
 export interface User {
   id: string;
-  name: string;
   email: string;
-  phone: string;
+  name: string;
   role: UserRole;
-  location: string;
-  rating: number;
-  totalReviews: number;
-  createdAt: Date;
+  phone?: string;
+  location?: Location;
+  avatar?: string;
+  bio?: string;
+  skills?: string[];
+  availability?: string[];
+  rating?: number;
+  totalReviews?: number;
+  createdAt: string;
 }
 
-/** Help request from a senior */
+/**
+ * Help request from a senior
+ */
 export interface HelpRequest {
   id: string;
-  requesterId: string;
+  seniorId: string;
+  volunteerId?: string;
   title: string;
   description: string;
-  category: string;
-  urgency: UrgencyLevel;
+  category: Category;
+  priority: Priority;
   status: RequestStatus;
-  location: string;
-  scheduledDate?: Date;
-  assignedVolunteerId?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  location: Location;
+  scheduledDate: string;
+  estimatedDuration?: number;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+  notes?: string;
 }
 
-/** Notification for users */
+/**
+ * Review for a completed help request
+ */
+export interface Review {
+  id: string;
+  requestId: string;
+  reviewerId: string;
+  revieweeId: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}
+
+/**
+ * Notification for users
+ */
 export interface Notification {
   id: string;
   userId: string;
-  type: 'request' | 'assignment' | 'reminder' | 'system';
+  type: 'request' | 'message' | 'reminder' | 'review';
   title: string;
   message: string;
   read: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
-
-/** Priority levels */
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
-
-/** Request categories */
-export type Category = 'transportation' | 'groceries' | 'medical' | 'companionship' | 'household' | 'technology' | 'other';
