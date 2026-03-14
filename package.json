@@ -13,7 +13,9 @@
     "react": "^18",
     "react-dom": "^18",
     "next-themes": "^0.2.1",
-    "lucide-react": "^0.298.0"
+    "lucide-react": "^0.298.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
     "typescript": "^5",
