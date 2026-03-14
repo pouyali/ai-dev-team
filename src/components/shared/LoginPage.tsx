@@ -1,6 +1,8 @@
+'use client'
+
 import React, { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { mockUsers } from '@/contexts/AuthContext'
+import { mockUsers } from '@/utils/mockData'
 
 const quickLoginUsers = [
   { role: 'Volunteer', name: 'Sarah Thompson', id: 'user-st' },
