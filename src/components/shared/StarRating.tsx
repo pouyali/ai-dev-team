@@ -13,26 +13,20 @@ interface StarRatingProps {
 
 /**
  * Star rating component with display and interactive modes
- * Uses lucide Star icon with filled yellow or empty gray stars
  */
 export default function StarRating({
   rating,
   maxRating = 5,
   interactive = false,
   onChange,
-  size = 'md',
+  size = 'md'
 }: StarRatingProps): JSX.Element {
   const [hoverRating, setHoverRating] = React.useState<number>(0);
 
-  const getSizeClass = (): string => {
-    switch (size) {
-      case 'sm':
-        return 'w-4 h-4';
-      case 'lg':
-        return 'w-8 h-8';
-      default:
-        return 'w-5 h-5';
-    }
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6'
   };
 
   const handleClick = (index: number): void => {
@@ -69,10 +63,10 @@ export default function StarRating({
             onMouseEnter={() => handleMouseEnter(starIndex)}
             onMouseLeave={handleMouseLeave}
             disabled={!interactive}
-            className={`${interactive ? 'cursor-pointer hover:scale-110' : 'cursor-default'} transition-transform disabled:cursor-default`}
+            className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
           >
             <Star
-              className={`${getSizeClass()} ${isFilled ? 'fill-yellow-400 text-yellow-400' : 'fill-none text-gray-300'}`}
+              className={`${sizeClasses[size]} ${isFilled ? 'fill-yellow-400 text-yellow-400' : 'fill-none text-gray-300'}`}
             />
           </button>
         );
