@@ -9,37 +9,47 @@ import {
   mockNotifications,
   mockLocationTracking,
 } from '../utils/mockData';
-import { generateId, simulateApiDelay } from '../utils/helpers';
+import { generateId } from '../utils/helpers';
 
+/**
+ * Data context interface
+ */
 interface DataContextType {
   requests: Request[];
   users: User[];
   reviews: Review[];
   notifications: Notification[];
   locationTracking: LocationTracking[];
-  createRequest: (request: Omit<Request, 'id' | 'createdAt' | 'status'>) => Promise<Request>;
-  updateRequest: (id: string, updates: Partial<Request>) => Promise<Request | null>;
-  deleteRequest: (id: string) => Promise<boolean>;
-  acceptRequest: (requestId: string, volunteerId: string, volunteerName: string) => Promise<Request | null>;
-  declineRequest: (requestId: string) => Promise<Request | null>;
-  startTask: (requestId: string) => Promise<Request | null>;
-  completeTask: (requestId: string) => Promise<Request | null>;
-  submitReview: (review: Omit<Review, 'id' | 'createdAt'>) => Promise<Review>;
+  createRequest: (request: Omit<Request, 'id' | 'createdAt' | 'status'>) => Request;
+  updateRequest: (id: string, updates: Partial<Request>) => void;
+  deleteRequest: (id: string) => void;
+  acceptRequest: (requestId: string, volunteerId: string, volunteerName: string) => void;
+  declineRequest: (requestId: string) => void;
+  startTask: (requestId: string) => void;
+  completeTask: (requestId: string) => void;
+  submitReview: (review: Omit<Review, 'id' | 'createdAt'>) => Review;
   updateLocationTracking: (tracking: LocationTracking) => void;
-  deleteUser: (userId: string) => Promise<boolean>;
+  deleteUser: (userId: string) => void;
   markNotificationRead: (notificationId: string) => void;
   getUnreadCount: (userId: string) => number;
+  getUserById: (userId: string) => User | undefined;
+  getRequestById: (requestId: string) => Request | undefined;
 }
 
+/**
+ * Data context with default values
+ */
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+/**
+ * Data provider props
+ */
 interface DataProviderProps {
   children: ReactNode;
 }
 
 /**
- * DataProvider component that manages all application data
- * Provides CRUD operations for requests, users, reviews, and notifications
+ * Data provider component that manages application data state
  */
 export function DataProvider({ children }: DataProviderProps): JSX.Element {
   const [requests, setRequests] = useState<Request[]>(mockRequests);
@@ -52,13 +62,12 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
    * Create a new request
    */
   const createRequest = useCallback(
-    async (request: Omit<Request, 'id' | 'createdAt' | 'status'>): Promise<Request> => {
-      await simulateApiDelay();
+    (requestData: Omit<Request, 'id' | 'createdAt' | 'status'>): Request => {
       const newRequest: Request = {
-        ...request,
-        id: `req-${generateId()}`,
-        createdAt: new Date().toISOString(),
+        ...requestData,
+        id: generateId(),
         status: 'pending',
+        createdAt: new Date().toISOString(),
       };
       setRequests((prev) => [...prev, newRequest]);
       return newRequest;
@@ -69,56 +78,37 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
   /**
    * Update an existing request
    */
-  const updateRequest = useCallback(
-    async (id: string, updates: Partial<Request>): Promise<Request | null> => {
-      await simulateApiDelay();
-      let updatedRequest: Request | null = null;
-      setRequests((prev) =>
-        prev.map((req) => {
-          if (req.id === id) {
-            updatedRequest = { ...req, ...updates };
-            return updatedRequest;
-          }
-          return req;
-        })
-      );
-      return updatedRequest;
-    },
-    []
-  );
+  const updateRequest = useCallback((id: string, updates: Partial<Request>): void => {
+    setRequests((prev) =>
+      prev.map((req) => (req.id === id ? { ...req, ...updates } : req))
+    );
+  }, []);
 
   /**
    * Delete a request
    */
-  const deleteRequest = useCallback(async (id: string): Promise<boolean> => {
-    await simulateApiDelay();
+  const deleteRequest = useCallback((id: string): void => {
     setRequests((prev) => prev.filter((req) => req.id !== id));
-    return true;
   }, []);
 
   /**
    * Accept a request as a volunteer
    */
   const acceptRequest = useCallback(
-    async (requestId: string, volunteerId: string, volunteerName: string): Promise<Request | null> => {
-      await simulateApiDelay();
-      let updatedRequest: Request | null = null;
+    (requestId: string, volunteerId: string, volunteerName: string): void => {
       setRequests((prev) =>
-        prev.map((req) => {
-          if (req.id === requestId) {
-            updatedRequest = {
-              ...req,
-              status: 'accepted',
-              volunteerId,
-              volunteerName,
-              acceptedAt: new Date().toISOString(),
-            };
-            return updatedRequest;
-          }
-          return req;
-        })
+        prev.map((req) =>
+          req.id === requestId
+            ? {
+                ...req,
+                status: 'accepted',
+                volunteerId,
+                volunteerName,
+                acceptedAt: new Date().toISOString(),
+              }
+            : req
+        )
       );
-      return updatedRequest;
     },
     []
   );
@@ -126,74 +116,48 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
   /**
    * Decline/reject a request
    */
-  const declineRequest = useCallback(async (requestId: string): Promise<Request | null> => {
-    await simulateApiDelay();
-    let updatedRequest: Request | null = null;
+  const declineRequest = useCallback((requestId: string): void => {
     setRequests((prev) =>
-      prev.map((req) => {
-        if (req.id === requestId) {
-          updatedRequest = { ...req, status: 'rejected' };
-          return updatedRequest;
-        }
-        return req;
-      })
+      prev.map((req) =>
+        req.id === requestId ? { ...req, status: 'rejected' } : req
+      )
     );
-    return updatedRequest;
   }, []);
 
   /**
-   * Start a task
+   * Start a task (volunteer is on the way or has arrived)
    */
-  const startTask = useCallback(async (requestId: string): Promise<Request | null> => {
-    await simulateApiDelay();
-    let updatedRequest: Request | null = null;
+  const startTask = useCallback((requestId: string): void => {
     setRequests((prev) =>
-      prev.map((req) => {
-        if (req.id === requestId) {
-          updatedRequest = {
-            ...req,
-            status: 'started',
-            startedAt: new Date().toISOString(),
-          };
-          return updatedRequest;
-        }
-        return req;
-      })
+      prev.map((req) =>
+        req.id === requestId
+          ? { ...req, status: 'started', startedAt: new Date().toISOString() }
+          : req
+      )
     );
-    return updatedRequest;
   }, []);
 
   /**
    * Complete a task
    */
-  const completeTask = useCallback(async (requestId: string): Promise<Request | null> => {
-    await simulateApiDelay();
-    let updatedRequest: Request | null = null;
+  const completeTask = useCallback((requestId: string): void => {
     setRequests((prev) =>
-      prev.map((req) => {
-        if (req.id === requestId) {
-          updatedRequest = {
-            ...req,
-            status: 'completed',
-            completedAt: new Date().toISOString(),
-          };
-          return updatedRequest;
-        }
-        return req;
-      })
+      prev.map((req) =>
+        req.id === requestId
+          ? { ...req, status: 'completed', completedAt: new Date().toISOString() }
+          : req
+      )
     );
-    return updatedRequest;
   }, []);
 
   /**
    * Submit a review
    */
   const submitReview = useCallback(
-    async (review: Omit<Review, 'id' | 'createdAt'>): Promise<Review> => {
-      await simulateApiDelay();
+    (reviewData: Omit<Review, 'id' | 'createdAt'>): Review => {
       const newReview: Review = {
-        ...review,
-        id: `rev-${generateId()}`,
+        ...reviewData,
+        id: generateId(),
         createdAt: new Date().toISOString(),
       };
       setReviews((prev) => [...prev, newReview]);
@@ -208,7 +172,7 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
   const updateLocationTracking = useCallback((tracking: LocationTracking): void => {
     setLocationTracking((prev) => {
       const existingIndex = prev.findIndex(
-        (t) => t.requestId === tracking.requestId && t.volunteerId === tracking.volunteerId
+        (t) => t.requestId === tracking.requestId
       );
       if (existingIndex >= 0) {
         const updated = [...prev];
@@ -220,12 +184,10 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
   }, []);
 
   /**
-   * Delete a user
+   * Delete a user (admin only)
    */
-  const deleteUser = useCallback(async (userId: string): Promise<boolean> => {
-    await simulateApiDelay();
+  const deleteUser = useCallback((userId: string): void => {
     setUsers((prev) => prev.filter((user) => user.id !== userId));
-    return true;
   }, []);
 
   /**
@@ -240,13 +202,33 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
   }, []);
 
   /**
-   * Get the count of unread notifications for a user
+   * Get unread notification count for a user
    */
   const getUnreadCount = useCallback(
     (userId: string): number => {
       return notifications.filter((n) => n.userId === userId && !n.read).length;
     },
     [notifications]
+  );
+
+  /**
+   * Get a user by ID
+   */
+  const getUserById = useCallback(
+    (userId: string): User | undefined => {
+      return users.find((u) => u.id === userId);
+    },
+    [users]
+  );
+
+  /**
+   * Get a request by ID
+   */
+  const getRequestById = useCallback(
+    (requestId: string): Request | undefined => {
+      return requests.find((r) => r.id === requestId);
+    },
+    [requests]
   );
 
   const value: DataContextType = {
@@ -267,15 +249,15 @@ export function DataProvider({ children }: DataProviderProps): JSX.Element {
     deleteUser,
     markNotificationRead,
     getUnreadCount,
+    getUserById,
+    getRequestById,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 
 /**
- * Hook to access the data context
- * @returns DataContextType
- * @throws Error if used outside of DataProvider
+ * Hook to use the data context
  */
 export function useData(): DataContextType {
   const context = useContext(DataContext);
