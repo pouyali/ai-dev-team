@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   LayoutDashboard,
   Users,
@@ -34,7 +34,13 @@ export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [notificationCount] = React.useState(5);
-  const [currentPath] = React.useState('/admin/dashboard');
+  
+  // Get current path from window.location for client-side routing
+  const [currentPath, setCurrentPath] = React.useState('/admin/dashboard');
+  
+  React.useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, []);
 
   const navItems: NavItem[] = [
     { icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard', href: '/admin/dashboard' },
