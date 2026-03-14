@@ -1,59 +1,43 @@
 'use client';
 
-import React, { ReactNode } from 'react';
-import Link from 'next/link';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import TopBar from '@/components/shared/TopBar';
-import { Home, Users, FileText, BarChart3, Settings, Shield } from 'lucide-react';
+import { Avatar } from '@/components/shared/Avatar';
+import { Button } from '@/components/ui/button';
 
 interface AdminLayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
-  const { user } = useAuth();
-
-  const navItems = [
-    { icon: Home, label: 'Dashboard', href: '/admin' },
-    { icon: FileText, label: 'All Requests', href: '/admin/requests' },
-    { icon: Users, label: 'Users', href: '/admin/users' },
-    { icon: BarChart3, label: 'Analytics', href: '/admin/analytics' },
-    { icon: Shield, label: 'Moderation', href: '/admin/moderation' },
-    { icon: Settings, label: 'Settings', href: '/admin/settings' },
-  ];
+  const { user, switchRole } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <TopBar />
-      <div className="flex">
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <Shield className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold text-gray-900">Admin Panel</span>
+      <header className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="font-semibold text-gray-900">VolunteerConnect</h1>
+              <p className="text-sm text-gray-500">Admin Dashboard</p>
             </div>
           </div>
-          <nav className="p-4 space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="w-full flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-          {user && (
-            <div className="p-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">Admin</p>
-              <p className="text-sm font-medium text-gray-900">{user.name}</p>
-            </div>
-          )}
-        </aside>
-        <main className="flex-1 p-6">{children}</main>
-      </div>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => switchRole('volunteer')}>
+              Switch to Volunteer
+            </Button>
+            <Avatar name={user?.name || 'Admin'} size="sm" />
+          </div>
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto p-4">
+        {children}
+      </main>
     </div>
   );
 }
