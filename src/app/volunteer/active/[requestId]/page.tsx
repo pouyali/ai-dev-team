@@ -1,3 +1,5 @@
-export default function ActiveRequestPage({ params }: { params: { requestId: string } }) {
-  return <div className="p-4 text-gray-500">Active Request {params.requestId} — coming in phase 3b</div>
+import ActiveTask from '@/components/volunteer/ActiveTask'
+
+export default function ActiveTaskPage({ params }: { params: { requestId: string } }) {
+  return <ActiveTask requestId={params.requestId} />
 }
