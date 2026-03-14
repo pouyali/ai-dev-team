@@ -11,46 +11,47 @@ interface VolunteerLayoutProps {
   children: React.ReactNode;
 }
 
+const VOLUNTEER_TABS = [
+  { label: 'Requests', icon: Home },
+  { label: 'Schedule', icon: Calendar },
+  { label: 'Notifications', icon: Bell, badge: 0 },
+  { label: 'Reviews', icon: Star }
+];
+
 /**
- * Layout component for the volunteer portal
+ * Layout component for the Volunteer Portal
  * Includes TopBar, NavTabs, and main content area
  */
 export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX.Element {
   const { switchRole, currentUser } = useAuth();
   const { notifications } = useData();
-  const [activeTab, setActiveTab] = useState<string>('Requests');
+  const [activeTab, setActiveTab] = useState('Requests');
 
-  // Count unread notifications for the current user
+  // Calculate unread notifications count
   const unreadCount = notifications.filter(
-    (n) => n.userId === currentUser?.id && !n.read
+    n => !n.read && n.userId === currentUser?.id
   ).length;
 
-  const tabs = [
-    { label: 'Requests', icon: Home },
-    { label: 'Schedule', icon: Calendar },
-    { label: 'Notifications', icon: Bell, badge: unreadCount > 0 ? unreadCount : undefined },
-    { label: 'Reviews', icon: Star },
-  ];
+  // Update tabs with notification badge
+  const tabsWithBadge = VOLUNTEER_TABS.map(tab => {
+    if (tab.label === 'Notifications') {
+      return { ...tab, badge: unreadCount };
+    }
+    return tab;
+  });
 
-  const handleSwitch = (): void => {
+  const handleSwitch = () => {
     switchRole('senior');
   };
 
-  const handleTabChange = (label: string): void => {
+  const handleTabChange = (label: string) => {
     setActiveTab(label);
-    // Update URL without page reload for better UX
-    const tabSlug = label.toLowerCase().replace(' ', '-');
-    window.history.pushState({}, '', `/volunteer/${tabSlug}`);
+    // Update URL without page reload for client-side navigation
+    if (typeof window !== 'undefined') {
+      const path = `/volunteer/${label.toLowerCase().replace(/\s+/g, '-')}`;
+      window.history.pushState({}, '', path);
+    }
   };
-
-  // Set initial tab based on URL
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (path.includes('schedule')) setActiveTab('Schedule');
-    else if (path.includes('notifications')) setActiveTab('Notifications');
-    else if (path.includes('reviews')) setActiveTab('Reviews');
-    else setActiveTab('Requests');
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -59,8 +60,14 @@ export default function VolunteerLayout({ children }: VolunteerLayoutProps): JSX
         switchLabel="Switch to Senior"
         onSwitch={handleSwitch}
       />
-      <NavTabs tabs={tabs} active={activeTab} onChange={handleTabChange} />
-      <main className="p-6">{children}</main>
+      <NavTabs
+        tabs={tabsWithBadge}
+        active={activeTab}
+        onChange={handleTabChange}
+      />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {children}
+      </main>
     </div>
   );
 }
