@@ -4,30 +4,37 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 import { User, UserRole } from '../types';
 import { mockUsers } from '../utils/mockData';
 
+/**
+ * Auth context interface
+ */
 interface AuthContextType {
   currentUser: User | null;
+  isAuthenticated: boolean;
   login: (userId: string) => void;
   logout: () => void;
   switchRole: (role: UserRole) => void;
-  isAuthenticated: boolean;
 }
 
+/**
+ * Auth context with default values
+ */
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Auth provider props
+ */
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 /**
- * AuthProvider component that manages authentication state
- * Provides login, logout, and role switching functionality
+ * Auth provider component that manages authentication state
  */
 export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   /**
    * Log in a user by their ID
-   * @param userId - The ID of the user to log in
    */
   const login = useCallback((userId: string): void => {
     const user = mockUsers.find((u) => u.id === userId);
@@ -45,7 +52,6 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
   /**
    * Switch to the first user of a given role
-   * @param role - The role to switch to
    */
   const switchRole = useCallback((role: UserRole): void => {
     const user = mockUsers.find((u) => u.role === role);
@@ -56,19 +62,17 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
   const value: AuthContextType = {
     currentUser,
+    isAuthenticated: currentUser !== null,
     login,
     logout,
     switchRole,
-    isAuthenticated: currentUser !== null,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 /**
- * Hook to access the auth context
- * @returns AuthContextType
- * @throws Error if used outside of AuthProvider
+ * Hook to use the auth context
  */
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
