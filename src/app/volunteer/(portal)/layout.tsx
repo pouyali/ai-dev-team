@@ -1,16 +1,21 @@
 'use client'
+
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Home, Calendar, Bell, Star } from 'lucide-react'
 
-export default function VolunteerPortalLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function VolunteerPortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+
+  const getInitials = (name: string) =>
+    name
+      ?.split(' ')
+      .map((w: string) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) ?? '?'
 
   const tabs = [
     { label: 'Requests', href: '/volunteer', icon: Home },
@@ -19,24 +24,21 @@ export default function VolunteerPortalLayout({
     { label: 'Reviews', href: '/volunteer/reviews', icon: Star },
   ]
 
-  const activeTab = tabs.find(t =>
-    t.href === '/volunteer'
-      ? pathname === '/volunteer'
-      : pathname === t.href || pathname.startsWith(t.href + '/')
-  )?.label ?? 'Requests'
+  const activeTab =
+    tabs.find((t) =>
+      t.href === '/volunteer'
+        ? pathname === '/volunteer'
+        : pathname === t.href || pathname.startsWith(t.href + '/')
+    )?.label ?? 'Requests'
 
-  const getInitials = (name: string) =>
-    name
-      .split(' ')
-      .map(w => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
+  const handleLogout = () => {
+    logout()
+    router.push('/')
+  }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top bar */}
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center">
@@ -54,28 +56,28 @@ export default function VolunteerPortalLayout({
             >
               Switch to Senior
             </button>
-            <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold">
-              {user?.name ? getInitials(user.name) : '?'}
+            <div
+              className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold cursor-pointer"
+              onClick={handleLogout}
+            >
+              {getInitials(user?.name ?? '')}
             </div>
           </div>
         </div>
-
-        {/* Nav tabs */}
-        <div className="px-6 pb-3">
-          <div className="flex bg-gray-100 rounded-xl p-1 w-fit gap-1">
-            {tabs.map(tab => {
+        <div className="px-6 pb-2">
+          <div className="flex bg-gray-100 rounded-xl p-1 gap-1 w-fit">
+            {tabs.map((tab) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.label
               return (
                 <button
                   key={tab.label}
                   onClick={() => router.push(tab.href)}
-                  className={[
-                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700',
-                  ].join(' ')}
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
                 >
                   <Icon className="w-4 h-4" />
                   {tab.label}
@@ -85,10 +87,7 @@ export default function VolunteerPortalLayout({
           </div>
         </div>
       </header>
-
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        {children}
-      </main>
+      <main className="max-w-4xl mx-auto px-4 py-6">{children}</main>
     </div>
   )
 }
