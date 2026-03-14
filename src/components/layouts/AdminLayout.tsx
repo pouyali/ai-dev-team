@@ -9,8 +9,8 @@ interface AdminLayoutProps {
 }
 
 /**
- * Layout component for the admin portal
- * Includes TopBar only (admin uses tabs inside the page)
+ * Layout component for the admin panel
+ * Includes TopBar with switch to volunteer (no tabs - admin uses tabs inside pages)
  */
 export default function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
   const { switchRole } = useAuth();
