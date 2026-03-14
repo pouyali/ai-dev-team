@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { useAuth } from '@/contexts/AuthContext'
 import { useData } from '@/contexts/DataContext'
 import { ChevronLeft, ChevronRight, Calendar, Clock, MapPin } from 'lucide-react'
-import { Location } from '@/types'
 
 const getInitials = (name: string) =>
   name
@@ -61,13 +61,16 @@ function getDaysInMonthGrid(year: number, month: number): (Date | null)[] {
 
 export default function VolunteerSchedule() {
   const { user } = useAuth()
-  const { requests, startTask } = useData()
+  const { requests, updateRequest } = useData()
   const router = useRouter()
 
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [startingIds, setStartingIds] = useState<Set<string>>(new Set())
 
-  const tasks = requests.filter((r) => r.volunteerId === user?.id)
+  // Guard against user being null
+  const tasks =
+    user != null ? requests.filter((r) => r.volunteerId === user.id) : []
 
   const year = currentMonth.getFullYear()
   const month = currentMonth.getMonth()
@@ -86,12 +89,26 @@ export default function VolunteerSchedule() {
   const today = new Date()
 
   const selectedDayTasks = selectedDate
-    ? tasks.filter((t) => t.scheduledDate && isSameDay(new Date(t.scheduledDate), selectedDate))
+    ? tasks.filter(
+        (t) => t.scheduledDate && isSameDay(new Date(t.scheduledDate), selectedDate)
+      )
     : []
 
   const handleStartTask = async (requestId: string) => {
-    await startTask(requestId)
-    router.push(`/volunteer/active/${requestId}`)
+    if (startingIds.has(requestId)) return
+    setStartingIds((prev) => new Set(prev).add(requestId))
+    try {
+      updateRequest(requestId, { status: 'accepted' })
+      router.push(`/volunteer/active/${requestId}`)
+    } catch (err) {
+      console.error(err)
+      toast.error('Failed to start task. Please try again.')
+      setStartingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(requestId)
+        return next
+      })
+    }
   }
 
   return (
@@ -211,7 +228,24 @@ export default function VolunteerSchedule() {
           ) : (
             <div className="space-y-4">
               {selectedDayTasks.map((request) => {
-                const location = request.location as Location | undefined
+                const location =
+                  'location' in request
+                    ? (request as unknown as { location?: { address?: string } }).location
+                    : undefined
+                const seniorName =
+                  'seniorName' in request
+                    ? (request as unknown as { seniorName?: string }).seniorName
+                    : undefined
+                const scheduledTime =
+                  'scheduledTime' in request
+                    ? (request as unknown as { scheduledTime?: string }).scheduledTime
+                    : undefined
+                const duration =
+                  'duration' in request
+                    ? (request as unknown as { duration?: string }).duration
+                    : undefined
+                const isStarting = startingIds.has(request.id)
+
                 return (
                   <div
                     key={request.id}
@@ -220,13 +254,15 @@ export default function VolunteerSchedule() {
                     {/* Header */}
                     <div className="flex items-start gap-3 mb-4">
                       <div className="w-11 h-11 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold text-sm flex-shrink-0">
-                        {getInitials(request.seniorName)}
+                        {getInitials(seniorName ?? request.title)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-900 text-base leading-tight">
                           {request.title}
                         </h3>
-                        <p className="text-gray-500 text-sm mt-0.5">with {request.seniorName}</p>
+                        {seniorName && (
+                          <p className="text-gray-500 text-sm mt-0.5">with {seniorName}</p>
+                        )}
                       </div>
                       <span
                         className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${
@@ -245,16 +281,21 @@ export default function VolunteerSchedule() {
 
                     {/* Details */}
                     <div className="space-y-1.5 mb-5">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span>
-                          {request.scheduledDate} at {request.scheduledTime}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        <span>{request.duration}</span>
-                      </div>
+                      {request.scheduledDate && (
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span>
+                            {request.scheduledDate}
+                            {scheduledTime ? ` at ${scheduledTime}` : ''}
+                          </span>
+                        </div>
+                      )}
+                      {duration && (
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span>{duration}</span>
+                        </div>
+                      )}
                       {location?.address && (
                         <div className="flex items-center gap-2 text-sm text-gray-700">
                           <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -267,9 +308,10 @@ export default function VolunteerSchedule() {
                     {['accepted', 'started'].includes(request.status) && (
                       <button
                         onClick={() => handleStartTask(request.id)}
-                        className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
+                        disabled={isStarting}
+                        className="w-full py-2.5 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Start Task
+                        {isStarting ? 'Starting...' : 'Start Task'}
                       </button>
                     )}
                   </div>
