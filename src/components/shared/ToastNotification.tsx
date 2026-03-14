@@ -6,77 +6,63 @@ import { CheckCircle, XCircle, AlertCircle, Info, X } from 'lucide-react';
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
 interface ToastNotificationProps {
-  id: string;
   type: ToastType;
-  title: string;
-  message?: string;
+  message: string;
+  isVisible: boolean;
+  onClose: () => void;
   duration?: number;
-  onClose: (id: string) => void;
 }
 
 /**
- * Toast notification component for displaying feedback messages
- * Auto-dismisses after duration, supports success/error/warning/info types
+ * Toast notification component with auto-dismiss
  */
 export default function ToastNotification({
-  id,
   type,
-  title,
   message,
-  duration = 5000,
+  isVisible,
   onClose,
-}: ToastNotificationProps): JSX.Element {
+  duration = 5000
+}: ToastNotificationProps): JSX.Element | null {
   useEffect(() => {
-    if (duration > 0) {
-      const timer = setTimeout(() => {
-        onClose(id);
-      }, duration);
-
+    if (isVisible && duration > 0) {
+      const timer = setTimeout(onClose, duration);
       return () => clearTimeout(timer);
     }
-  }, [id, duration, onClose]);
+  }, [isVisible, duration, onClose]);
 
-  const getIcon = (): JSX.Element => {
-    const iconClass = 'w-5 h-5';
-    switch (type) {
-      case 'success':
-        return <CheckCircle className={`${iconClass} text-green-500`} />;
-      case 'error':
-        return <XCircle className={`${iconClass} text-red-500`} />;
-      case 'warning':
-        return <AlertCircle className={`${iconClass} text-yellow-500`} />;
-      case 'info':
-        return <Info className={`${iconClass} text-blue-500`} />;
-    }
+  if (!isVisible) return null;
+
+  const icons = {
+    success: CheckCircle,
+    error: XCircle,
+    warning: AlertCircle,
+    info: Info
   };
 
-  const getBorderColor = (): string => {
-    switch (type) {
-      case 'success':
-        return 'border-l-green-500';
-      case 'error':
-        return 'border-l-red-500';
-      case 'warning':
-        return 'border-l-yellow-500';
-      case 'info':
-        return 'border-l-blue-500';
-    }
+  const styles = {
+    success: 'bg-green-50 border-green-200 text-green-800',
+    error: 'bg-red-50 border-red-200 text-red-800',
+    warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+    info: 'bg-blue-50 border-blue-200 text-blue-800'
   };
+
+  const iconStyles = {
+    success: 'text-green-500',
+    error: 'text-red-500',
+    warning: 'text-yellow-500',
+    info: 'text-blue-500'
+  };
+
+  const Icon = icons[type];
 
   return (
-    <div
-      className={`bg-white border border-gray-200 border-l-4 ${getBorderColor()} rounded-lg shadow-lg p-4 min-w-[300px] max-w-md animate-toast-slide-up`}
-      role="alert"
-    >
-      <div className="flex items-start gap-3">
-        {getIcon()}
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900">{title}</p>
-          {message && <p className="mt-1 text-sm text-gray-500">{message}</p>}
-        </div>
+    <div className="fixed bottom-4 right-4 z-50 animate-toast-slide-up">
+      <div className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg ${styles[type]}`}>
+        <Icon className={`w-5 h-5 ${iconStyles[type]}`} />
+        <p className="text-sm font-medium">{message}</p>
         <button
-          onClick={() => onClose(id)}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          onClick={onClose}
+          className="ml-2 text-gray-400 hover:text-gray-600"
         >
           <X className="w-4 h-4" />
         </button>
