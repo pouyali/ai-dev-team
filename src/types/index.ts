@@ -1,113 +1,82 @@
-/**
- * User role types for the application
- */
+// User roles
 export type UserRole = 'volunteer' | 'senior' | 'admin';
 
-/**
- * User interface representing all user types in the system
- */
+// Request priorities
+export type Priority = 'low' | 'medium' | 'high';
+
+// Request categories
+export type Category = 'Shopping' | 'Transportation' | 'Technology' | 'Companionship' | 'Home Help' | 'Other';
+
+// Request status
+export type RequestStatus = 'pending' | 'accepted' | 'in-progress' | 'completed' | 'cancelled';
+
+// Location type
+export interface Location {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+// User type
 export interface User {
   id: string;
   name: string;
   email: string;
+  phone: string;
   role: UserRole;
-  phone?: string;
-  address?: string;
   avatar?: string;
+  location: Location;
+  createdAt: string;
   rating?: number;
   totalReviews?: number;
-  joinedDate: string;
-  stats?: {
-    totalRequests?: number;
-    completedRequests?: number;
-    activeRequests?: number;
-  };
+  bio?: string;
+  skills?: string[];
+  availability?: string[];
 }
 
-/**
- * Request status types representing the lifecycle of a help request
- */
-export type RequestStatus = 'pending' | 'accepted' | 'started' | 'in-progress' | 'finishing' | 'completed' | 'rejected';
-
-/**
- * Request category types
- */
-export type RequestCategory = 'groceries' | 'medical' | 'transportation' | 'home-repair' | 'technology' | 'shopping' | 'other';
-
-/**
- * Urgency levels for requests
- */
-export type UrgencyLevel = 'low' | 'medium' | 'high';
-
-/**
- * Location interface for geographic coordinates
- */
-export interface Location {
-  address: string;
-  lat: number;
-  lng: number;
-}
-
-/**
- * Request interface representing a help request from a senior
- */
-export interface Request {
+// Help request type
+export interface HelpRequest {
   id: string;
   title: string;
   description: string;
-  seniorId: string;
-  seniorName: string;
-  volunteerId?: string;
-  volunteerName?: string;
+  category: Category;
+  priority: Priority;
   status: RequestStatus;
+  requesterId: string;
+  volunteerId?: string;
   location: Location;
   scheduledDate: string;
-  scheduledTime: string;
-  duration?: string;
+  estimatedDuration: string;
   createdAt: string;
-  acceptedAt?: string;
-  startedAt?: string;
+  updatedAt: string;
   completedAt?: string;
-  category?: RequestCategory;
-  urgency?: UrgencyLevel;
+  notes?: string;
 }
 
-/**
- * Location tracking interface for real-time volunteer tracking
- */
-export interface LocationTracking {
-  requestId: string;
-  volunteerId: string;
-  currentLocation: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
-  lastUpdated: string;
-  isActive: boolean;
-}
-
-/**
- * Review interface for feedback after completed requests
- */
+// Review type
 export interface Review {
   id: string;
   requestId: string;
   reviewerId: string;
-  reviewerName: string;
-  reviewerRole: 'volunteer' | 'senior';
   revieweeId: string;
-  revieweeName: string;
   rating: number;
   comment: string;
   createdAt: string;
 }
 
-/**
- * Notification interface for user notifications
- */
+// Notification type
 export interface Notification {
   id: string;
   userId: string;
   title: string;
   message: string;
+  type: 'request' | 'reminder' | 'review' | 'system';
   read: boolean;
   createdAt: string;
+  relatedRequestId?: string;
 }
