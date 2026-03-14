@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Home, Calendar, Bell, Star } from 'lucide-react'
+import { Home, PlusCircle, List, User } from 'lucide-react'
 
-export default function VolunteerPortalLayout({ children }: { children: React.ReactNode }) {
+export default function SeniorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
@@ -18,18 +18,18 @@ export default function VolunteerPortalLayout({ children }: { children: React.Re
       .slice(0, 2) ?? '?'
 
   const tabs = [
-    { label: 'Requests', href: '/volunteer', icon: Home },
-    { label: 'Schedule', href: '/volunteer/schedule', icon: Calendar },
-    { label: 'Notifications', href: '/volunteer/notifications', icon: Bell },
-    { label: 'Reviews', href: '/volunteer/reviews', icon: Star },
+    { label: 'Dashboard', href: '/senior', icon: Home },
+    { label: 'Create Request', href: '/senior/create', icon: PlusCircle },
+    { label: 'My Requests', href: '/senior/requests', icon: List },
+    { label: 'Profile', href: '/senior/profile', icon: User },
   ]
 
   const activeTab =
     tabs.find((t) =>
-      t.href === '/volunteer'
-        ? pathname === '/volunteer'
+      t.href === '/senior'
+        ? pathname === '/senior'
         : pathname === t.href || pathname.startsWith(t.href + '/')
-    )?.label ?? 'Requests'
+    )?.label ?? 'Dashboard'
 
   const handleLogout = () => {
     logout()
@@ -46,15 +46,15 @@ export default function VolunteerPortalLayout({ children }: { children: React.Re
             </div>
             <div>
               <div className="font-semibold text-gray-900 text-sm">VolunteerConnect</div>
-              <div className="text-xs text-gray-500">Volunteer Portal</div>
+              <div className="text-xs text-gray-500">Senior Portal</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push('/senior')}
+              onClick={() => router.push('/volunteer')}
               className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50"
             >
-              Switch to Senior
+              Switch to Volunteer
             </button>
             <div
               className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white text-xs font-bold cursor-pointer"

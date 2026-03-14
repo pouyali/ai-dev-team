@@ -1,20 +1,22 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Toaster } from "sonner";
-import "./globals.css";
-import { ThemeProvider } from "../components/theme-provider";
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { Toaster } from 'sonner'
+import './globals.css'
+import { ThemeProvider } from '../components/theme-provider'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { DataProvider } from '@/contexts/DataContext'
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Next.js App with Dark Mode",
-  description: "A Next.js application with dark/light mode toggle",
-};
+  title: 'VolunteerConnect',
+  description: 'Connecting volunteers with seniors who need assistance',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -25,10 +27,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster position="top-center" richColors />
+          <AuthProvider>
+            <DataProvider>
+              {children}
+              <Toaster position="top-center" richColors />
+            </DataProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }
