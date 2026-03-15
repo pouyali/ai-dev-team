@@ -1,70 +1,67 @@
-// Mock data for the application
-// Note: these types extend the base types with app-specific fields
-
-export type UserRole = 'volunteer' | 'senior' | 'admin';
+import type { UserRole } from '@/contexts/AuthContext'
 
 export interface MockUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  phone?: string;
-  address?: string;
-  rating?: number;
-  totalReviews?: number;
-  joinedDate: string;
+  id: string
+  name: string
+  email: string
+  role: UserRole
+  phone?: string
+  address?: string
+  rating?: number
+  totalReviews?: number
+  joinedDate: string
   stats?: {
-    completedRequests?: number;
-    activeRequests?: number;
-    totalRequests?: number;
-  };
+    completedRequests?: number
+    activeRequests?: number
+    totalRequests?: number
+  }
 }
 
 export interface MockLocation {
-  address: string;
-  lat: number;
-  lng: number;
+  address: string
+  lat: number
+  lng: number
 }
 
-export interface MockRequest {
-  id: string;
-  title: string;
-  description: string;
-  seniorId: string;
-  seniorName: string;
-  volunteerId?: string;
-  volunteerName?: string;
-  status: 'pending' | 'accepted' | 'started' | 'in-progress' | 'completed' | 'cancelled';
-  location: MockLocation;
-  scheduledDate: string;
-  scheduledTime: string;
-  duration: string;
-  createdAt: string;
-  acceptedAt?: string;
-  category: 'groceries' | 'medical' | 'other' | string;
-  urgency: 'low' | 'medium' | 'high';
+export interface Request {
+  id: string
+  title: string
+  description: string
+  seniorId: string
+  seniorName: string
+  volunteerId?: string
+  volunteerName?: string
+  status: 'pending' | 'accepted' | 'started' | 'in-progress' | 'completed' | 'cancelled'
+  location: MockLocation
+  scheduledDate: string
+  scheduledTime: string
+  duration: string
+  createdAt: string
+  acceptedAt?: string
+  category: string
+  urgency: 'low' | 'medium' | 'high'
 }
 
-export interface MockReview {
-  id: string;
-  requestId: string;
-  reviewerId: string;
-  reviewerName: string;
-  reviewerRole: UserRole;
-  revieweeId: string;
-  revieweeName: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
+export interface Review {
+  id: string
+  requestId: string
+  reviewerId: string
+  reviewerName: string
+  reviewerRole: UserRole
+  revieweeId: string
+  revieweeName: string
+  rating: number
+  comment: string
+  createdAt: string
 }
 
-export interface MockNotification {
-  id: string;
-  userId: string;
-  title: string;
-  message: string;
-  read: boolean;
-  createdAt: string;
+export interface Notification {
+  id: string
+  userId: string
+  title: string
+  message: string
+  read: boolean
+  createdAt: string
 }
 
 export const mockUsers: MockUser[] = [
@@ -127,9 +124,9 @@ export const mockUsers: MockUser[] = [
     role: 'admin',
     joinedDate: '2024-01-01',
   },
-];
+]
 
-export const mockRequests: MockRequest[] = [
+export const mockRequests: Request[] = [
   {
     id: 'req-1',
     title: 'Help with grocery shopping',
@@ -178,9 +175,9 @@ export const mockRequests: MockRequest[] = [
     category: 'other',
     urgency: 'medium',
   },
-];
+]
 
-export const mockReviews: MockReview[] = [
+export const mockReviews: Review[] = [
   {
     id: 'rev-1',
     requestId: 'req-3',
@@ -193,9 +190,9 @@ export const mockReviews: MockReview[] = [
     comment: 'Sarah was incredibly helpful and patient. Highly recommend!',
     createdAt: new Date().toISOString(),
   },
-];
+]
 
-export const mockNotifications: MockNotification[] = [
+export const mockNotifications: Notification[] = [
   {
     id: 'notif-1',
     userId: 'user-st',
@@ -212,4 +209,4 @@ export const mockNotifications: MockNotification[] = [
     read: false,
     createdAt: new Date().toISOString(),
   },
-];
+]
