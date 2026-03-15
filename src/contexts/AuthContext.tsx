@@ -1,103 +1,61 @@
-'use client';
+'use client'
+import { createContext, useContext, useState, ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { mockUsers } from '@/utils/mockData'
+import { User } from '@/types'
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-
-export type UserRole = 'volunteer' | 'senior' | 'admin';
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
-  phone?: string;
-}
+export type UserRole = 'volunteer' | 'senior' | 'admin'
 
 export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (userId: string) => void;
-  logout: () => void;
+  user: User | null
+  isAuthenticated: boolean
+  login: (userId: string) => void
+  logout: () => void
+  switchRole: (role: UserRole) => void
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  login: () => {},
+  logout: () => {},
+  switchRole: () => {},
+})
 
-// Mock users for development — kept in sync with src/utils/mockData.ts
-const mockUsers: User[] = [
-  {
-    id: 'user-st',
-    name: 'Sarah Thompson',
-    email: 'sarah@example.com',
-    role: 'volunteer',
-    phone: '555-0201',
-  },
-  {
-    id: 'user-jw',
-    name: 'James Wilson',
-    email: 'james@example.com',
-    role: 'volunteer',
-    phone: '555-0202',
-  },
-  {
-    id: 'user-ms',
-    name: 'Margaret Smith',
-    email: 'margaret@example.com',
-    role: 'senior',
-    phone: '555-0101',
-  },
-  {
-    id: 'user-rj',
-    name: 'Robert Johnson',
-    email: 'robert@example.com',
-    role: 'senior',
-    phone: '555-0102',
-  },
-  {
-    id: 'user-dw',
-    name: 'Dorothy Williams',
-    email: 'dorothy@example.com',
-    role: 'senior',
-    phone: '555-0103',
-  },
-  {
-    id: 'user-ad',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin',
-  },
-];
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const router = useRouter()
 
-export function AuthProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [user, setUser] = useState<User | null>(null);
+  const login = (userId: string) => {
+    const found = mockUsers.find(u => u.id === userId)
+    if (!found) return
+    setUser(found)
+    if (found.role === 'volunteer') router.push('/volunteer')
+    else if (found.role === 'senior') router.push('/senior')
+    else if (found.role === 'admin') router.push('/admin')
+  }
 
-  const login = useCallback((userId: string) => {
-    const foundUser = mockUsers.find((u) => u.id === userId);
-    if (foundUser) {
-      setUser(foundUser);
-    }
-  }, []);
+  const logout = () => {
+    setUser(null)
+    router.push('/')
+  }
 
-  const logout = useCallback(() => {
-    setUser(null);
-  }, []);
+  const switchRole = (role: UserRole) => {
+    const found = mockUsers.find(u => u.role === role)
+    if (!found) return
+    setUser(found)
+    if (role === 'volunteer') router.push('/volunteer')
+    else if (role === 'senior') router.push('/senior')
+    else if (role === 'admin') router.push('/admin')
+  }
 
-  const value: AuthContextType = {
-    user,
-    isAuthenticated: user !== null,
-    login,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, isAuthenticated: user !== null, login, logout, switchRole }}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext)
 }
-
-// Export mock users for use in login page
-export { mockUsers };
